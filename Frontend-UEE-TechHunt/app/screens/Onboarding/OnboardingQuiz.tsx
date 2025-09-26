@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Button } from "react-native-elements";
-import OnboardingStep from "./OnboardingStep";
-import ProgressStepper from "../../components/ProgressStepper";
 import { StackNavigationProp } from "@react-navigation/stack";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import ProgressStepper from "../../components/ProgressStepper";
 import { OnboardingStackParamList } from "../../navigation/OnboardingStack";
+import OnboardingStep from "./OnboardingStep";
 
 const steps = [
   { question: "What skills do you have?", key: "skills" },

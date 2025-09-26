@@ -1,8 +1,8 @@
-import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import WelcomeScreen from "../screens/WelcomeScreen";
+import React from "react";
 import OnboardingQuiz from "../screens/Onboarding/OnboardingQuiz";
 import ProfileSetup from "../screens/Onboarding/ProfileSetup";
+import WelcomeScreen from "../screens/WelcomeScreen";
 
 export type OnboardingStackParamList = {
   Welcome: undefined;
