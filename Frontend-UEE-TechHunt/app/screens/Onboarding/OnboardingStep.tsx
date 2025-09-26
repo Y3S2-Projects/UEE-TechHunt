@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput } from "react-native";
-import { Button } from "react-native-elements";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 
 type Props = {
   question: string;
@@ -11,21 +10,30 @@ export default function OnboardingStep({ question, onNext }: Props) {
   const [answer, setAnswer] = useState("");
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.question}>{question}</Text>
+    <View className="w-full">
+      {/* Question */}
+      <Text className="text-xl font-bold text-gray-900 mb-4 text-center">
+        {question}
+      </Text>
+
+      {/* Input */}
       <TextInput
-        style={styles.input}
+        className="w-full border border-gray-300 rounded-2xl px-4 py-3 bg-gray-50 text-gray-900 mb-6 shadow-sm"
         placeholder="Type your answer"
+        placeholderTextColor="#9ca3af"
         value={answer}
         onChangeText={setAnswer}
       />
-      <Button title="Next" onPress={() => onNext(answer)} />
+
+      {/* Next Button */}
+      <TouchableOpacity
+        className="w-full bg-purple-600 py-4 rounded-2xl shadow-lg active:bg-purple-700"
+        onPress={() => onNext(answer)}
+      >
+        <Text className="text-white text-lg font-semibold text-center">
+          Next →
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { marginVertical: 20 },
-  question: { fontSize: 18, marginBottom: 10 },
-  input: { borderWidth: 1, padding: 10, marginBottom: 10, borderRadius: 5 },
-});
