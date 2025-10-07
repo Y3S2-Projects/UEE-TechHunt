@@ -6,6 +6,7 @@ import WelcomeScreen from "../screens/WelcomeScreen";
 import CoursesScreen from "../screens/Courses/CoursesScreen";
 import MessagesScreen from "../screens/Messages/MessagesScreen";
 import AddCourseScreen from "../screens/Courses/AddCourseScreen";
+import CourseDetailsScreen from "../screens/Courses/CourseDetailsScreen";
 
 export type OnboardingStackParamList = {
   Welcome: undefined;
@@ -14,6 +15,7 @@ export type OnboardingStackParamList = {
   Messages: undefined;
   Courses: undefined;
   AddCourse: undefined;
+  CourseDetails: { course: { id: string; title: string; description: string; thumbnail: string } };
 };
 
 const Stack = createStackNavigator<OnboardingStackParamList>();
@@ -27,6 +29,7 @@ export default function OnboardingStack() {
       <Stack.Screen name="Courses" component={CoursesScreen} />
       <Stack.Screen name="Messages" component={MessagesScreen} />
       <Stack.Screen name="AddCourse" component={AddCourseScreen} />
+      <Stack.Screen name="CourseDetails" component={CourseDetailsScreen} />
     </Stack.Navigator> 
   );
 }

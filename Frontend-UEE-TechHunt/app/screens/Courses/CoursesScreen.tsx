@@ -5,7 +5,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 
 type RootStackParamList = {
   AddCourse: undefined;
-  // Add other routes here if needed
+  CourseDetails: { course: any }; // Add CourseDetails route with its parameter type
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "AddCourse">;
@@ -39,7 +39,10 @@ export default function CoursesScreen() {
   );
 
   const renderCourse = ({ item }: any) => (
-    <View className="bg-gray-100 p-4 rounded-2xl mb-4 shadow">
+    <TouchableOpacity
+      onPress={() => navigation.navigate("CourseDetails", { course: item })}
+      className="bg-gray-100 p-4 rounded-2xl mb-4 shadow"
+    >
       <Image
         source={{ uri: item.thumbnail }}
         className="w-full h-40 rounded-xl mb-3"
@@ -47,8 +50,9 @@ export default function CoursesScreen() {
       />
       <Text className="text-lg font-bold text-gray-800 mb-1">{item.title}</Text>
       <Text className="text-gray-600 text-sm">{item.description}</Text>
-    </View>
+    </TouchableOpacity>
   );
+
 
   return (
     <View className="flex-1 bg-white px-5 pt-8">
