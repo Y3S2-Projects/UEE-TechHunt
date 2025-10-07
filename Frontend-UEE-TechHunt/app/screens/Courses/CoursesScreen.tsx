@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, Image, FlatList, TextInput } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -27,6 +27,17 @@ export default function CoursesScreen() {
     },
   ]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+  }
+
+  const filteredCourses = courses.filter((course) =>
+    course.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const renderCourse = ({ item }: any) => (
     <View className="bg-gray-100 p-4 rounded-2xl mb-4 shadow">
       <Image
@@ -41,15 +52,31 @@ export default function CoursesScreen() {
 
   return (
     <View className="flex-1 bg-white px-5 pt-8">
-      <Text className="text-2xl font-bold mb-6 text-purple-700">All Courses</Text>
+      <Text className="text-2xl font-bold mb-6 mt-8 text-purple-700">All Courses</Text>
+
+      {/* Search Section */}
+      <View className="flex-row items-center bg-gray-200 rounded-xl px-4 py-3 mb-4">
+        <Text>🔍</Text>
+        <TextInput 
+          placeholder="Search courses..."
+          className="ml-4 flex-1 text-gray-700"
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
+      </View>
+
+      {/* Courses Count */}
+      <Text className="text-gray-600 mb-4">
+        {filteredCourses.length} {filteredCourses.length === 1 ? "Course" : "Courses"} Available
+      </Text>
 
       {/* Course List */}
-      <FlatList
-        data={courses}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCourse}
-        showsVerticalScrollIndicator={false}
-      />
+        <FlatList
+          data={filteredCourses}
+          keyExtractor={(item) => item.id}
+          renderItem={renderCourse}
+          showsVerticalScrollIndicator={false}
+        />
 
       {/* Add Course Button */}
       <TouchableOpacity
@@ -67,5 +94,6 @@ export default function CoursesScreen() {
         <Text className="text-gray-800 text-center font-medium">Go Back</Text>
       </TouchableOpacity>
     </View>
+
   );
 }
