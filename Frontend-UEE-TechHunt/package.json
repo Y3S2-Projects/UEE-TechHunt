@@ -22,6 +22,7 @@
     "@types/react": "~19.1.10",
     "@types/react-dom": "~19.1.7",
     "@types/react-native": "^0.72.8",
+    "axios": "^1.12.2",
     "expo": "~54.0.10",
     "expo-constants": "~18.0.9",
     "expo-document-picker": "^14.0.7",
