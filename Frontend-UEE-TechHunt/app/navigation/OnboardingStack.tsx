@@ -15,8 +15,10 @@ export type OnboardingStackParamList = {
   Messages: undefined;
   Courses: undefined;
   AddCourse: undefined;
-  CourseDetails: { course: { id: string; title: string; description: string; thumbnail: string } };
+  CourseDetails: { course: { id: string; title: string; description: string; thumbnail: string; instructor: string; contact: string; email: string } };
   FreelancerDashboard: undefined;
+  Chat: { instructor: string , contact: string, email: string };
+  Chat2: { instructor: string , contact: string, email: string };
 };
 
 const Stack = createStackNavigator<OnboardingStackParamList>();
@@ -32,6 +34,8 @@ export default function OnboardingStack() {
       <Stack.Screen name="AddCourse" component={AddCourseScreen} />
       <Stack.Screen name="CourseDetails" component={CourseDetailsScreen} />
       <Stack.Screen name="FreelancerDashboard" component={require("../screens/Freelancer/FreelancerDashboard").default} />
+      <Stack.Screen name="Chat" component={require("../screens/Messages/ChatMiddleScreen").default} />
+      <Stack.Screen name="Chat2" component={require("../screens/Messages/ChatScreen").default} />
     </Stack.Navigator> 
   );
 }
