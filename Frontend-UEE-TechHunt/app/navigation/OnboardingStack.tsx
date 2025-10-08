@@ -4,6 +4,10 @@ import WelcomeScreen from "../screens/WelcomeScreen";
 import OnboardingQuiz from "../screens/Onboarding/OnboardingQuiz";
 import OnboardingResult from "../screens/Onboarding/OnboardingResult";
 import ProfileSetup from "../screens/Onboarding/ProfileSetup";
+import CoursesScreen from "../screens/Courses/CoursesScreen";
+import MessagesScreen from "../screens/Messages/MessagesScreen";
+import AddCourseScreen from "../screens/Courses/AddCourseScreen";
+import CourseDetailsScreen from "../screens/Courses/CourseDetailsScreen";
 
 // Type definitions for navigation
 export type OnboardingStackParamList = {
@@ -29,6 +33,11 @@ export type OnboardingStackParamList = {
     };
   };
   ProfileSetup: undefined;
+  Messages: undefined;
+  Courses: undefined;
+  AddCourse: undefined;
+  CourseDetails: { course: { id: string; title: string; description: string; thumbnail: string } };
+  FreelancerDashboard: undefined;
 };
 
 const Stack = createStackNavigator<OnboardingStackParamList>();
@@ -54,6 +63,11 @@ export default function OnboardingStack() {
         }}
       />
       <Stack.Screen name="ProfileSetup" component={ProfileSetup} />
-    </Stack.Navigator>
+      <Stack.Screen name="Courses" component={CoursesScreen} />
+      <Stack.Screen name="Messages" component={MessagesScreen} />
+      <Stack.Screen name="AddCourse" component={AddCourseScreen} />
+      <Stack.Screen name="CourseDetails" component={CourseDetailsScreen} />
+      <Stack.Screen name="FreelancerDashboard" component={require("../screens/Freelancer/FreelancerDashboard").default} />
+    </Stack.Navigator> 
   );
 }

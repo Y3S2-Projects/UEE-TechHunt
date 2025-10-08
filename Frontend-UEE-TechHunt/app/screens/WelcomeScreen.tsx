@@ -76,6 +76,27 @@ export default function WelcomeScreen({ navigation }: Props) {
               Start Your Journey
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity 
+          className="bg-white rounded-2xl py-4 px-8 mt-5"
+          onPress={() => navigation.navigate("Courses")}
+          >
+            <Text className="text-purple-700 font-bold text-lg text-center">Courses Section</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+          className="bg-gray-400 rounded-2xl py-4 px-8 mt-5"
+          onPress={() => navigation.navigate("FreelancerDashboard")}
+          >
+            <Text className="text-purple-700 font-bold text-lg text-center">Freelancer Dashboard</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+          className="bg-white rounded-2xl py-4 px-8 mt-5"
+          onPress={() => navigation.navigate("Messages")}
+          >
+            <Text className="text-purple-700 font-bold text-lg text-center">Messages Section</Text>
+          </TouchableOpacity>
           
           {/* Secondary Action */}
           <TouchableOpacity
