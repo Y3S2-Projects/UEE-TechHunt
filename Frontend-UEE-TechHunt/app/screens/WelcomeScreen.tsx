@@ -80,6 +80,13 @@ export default function WelcomeScreen({ navigation }: Props) {
           </TouchableOpacity>
 
           <TouchableOpacity 
+          className="bg-gray-400 rounded-2xl py-4 px-8 mt-5"
+          onPress={() => navigation.navigate("FreelancerDashboard")}
+          >
+            <Text className="text-purple-700 font-bold text-lg text-center">Freelancer Dashboard</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
           className="bg-white rounded-2xl py-4 px-8 mt-5"
           onPress={() => navigation.navigate("Messages")}
           >

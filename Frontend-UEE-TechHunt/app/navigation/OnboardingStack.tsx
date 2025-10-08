@@ -16,6 +16,7 @@ export type OnboardingStackParamList = {
   Courses: undefined;
   AddCourse: undefined;
   CourseDetails: { course: { id: string; title: string; description: string; thumbnail: string } };
+  FreelancerDashboard: undefined;
 };
 
 const Stack = createStackNavigator<OnboardingStackParamList>();
@@ -30,6 +31,7 @@ export default function OnboardingStack() {
       <Stack.Screen name="Messages" component={MessagesScreen} />
       <Stack.Screen name="AddCourse" component={AddCourseScreen} />
       <Stack.Screen name="CourseDetails" component={CourseDetailsScreen} />
+      <Stack.Screen name="FreelancerDashboard" component={require("../screens/Freelancer/FreelancerDashboard").default} />
     </Stack.Navigator> 
   );
 }
