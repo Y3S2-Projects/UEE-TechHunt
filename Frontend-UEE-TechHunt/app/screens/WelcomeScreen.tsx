@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { useRouter } from "expo-router";
 import { OnboardingStackParamList } from "../navigation/OnboardingStack";
 
 type WelcomeScreenNavProp = StackNavigationProp<
@@ -13,6 +14,8 @@ type Props = {
 };
 
 export default function WelcomeScreen({ navigation }: Props) {
+  const router = useRouter();
+
   return (
     <View className="flex-1 bg-purple-600">
       <View className="flex-1 justify-center items-center px-6">
@@ -69,6 +72,22 @@ export default function WelcomeScreen({ navigation }: Props) {
           >
             <Text className="text-purple-700 font-bold text-lg text-center">
               Start Your Journey
+            </Text>
+          </TouchableOpacity>
+          
+          {/* TEST PAYMENT BUTTON - TEMPORARY */}
+          <TouchableOpacity
+            className="mt-4 py-4 px-8 bg-green-500 rounded-2xl"
+            onPress={() => {
+              try {
+                router.push('/payment/checkout');
+              } catch (error) {
+                console.log('Navigation error:', error);
+              }
+            }}
+          >
+            <Text className="text-white font-bold text-lg text-center">
+              💳 Test Payment Gateway
             </Text>
           </TouchableOpacity>
           
