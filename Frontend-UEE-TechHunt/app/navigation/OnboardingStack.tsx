@@ -1,12 +1,33 @@
-import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
-import OnboardingQuiz from "../screens/Onboarding/OnboardingQuiz";
-import ProfileSetup from "../screens/Onboarding/ProfileSetup";
+import { createStackNavigator } from "@react-navigation/stack";
 import WelcomeScreen from "../screens/WelcomeScreen";
+import OnboardingQuiz from "../screens/Onboarding/OnboardingQuiz";
+import OnboardingResult from "../screens/Onboarding/OnboardingResult";
+import ProfileSetup from "../screens/Onboarding/ProfileSetup";
 
+// Type definitions for navigation
 export type OnboardingStackParamList = {
   Welcome: undefined;
   Quiz: undefined;
+  OnboardingResult: {
+    result: {
+      profile?: {
+        primaryTrack?: string;
+        experienceLevel?: string;
+        strengthAreas?: string[];
+        improvementAreas?: string[];
+      };
+      learningPath?: Record<string, any>;
+      recommendedProjects?: string[];
+      estimatedCompletionTime?: string;
+    };
+    answers: {
+      selectedTrack: string;
+      experienceLevel: string;
+      skills: string[];
+      goals: string;
+    };
+  };
   ProfileSetup: undefined;
 };
 
@@ -14,9 +35,24 @@ const Stack = createStackNavigator<OnboardingStackParamList>();
 
 export default function OnboardingStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        cardStyle: { backgroundColor: "#0A1F2F" },
+        gestureEnabled: true,
+        gestureDirection: "horizontal",
+      }}
+    >
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
+
       <Stack.Screen name="Quiz" component={OnboardingQuiz} />
+      <Stack.Screen 
+        name="OnboardingResult" 
+        component={OnboardingResult}
+        options={{
+          gestureEnabled: false, // Prevent going back after completing quiz
+        }}
+      />
       <Stack.Screen name="ProfileSetup" component={ProfileSetup} />
     </Stack.Navigator>
   );
