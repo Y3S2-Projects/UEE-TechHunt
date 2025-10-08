@@ -54,7 +54,7 @@ export default function AddCourseScreen() {
   const levels = ["Beginner", "Intermediate", "Advanced"];
 
   return (
-    <View className="flex-1 bg-slate-950 px-6 pt-10">
+    <View className="flex-1 bg-3A7D99-950 px-6 pt-10">
       <Text className="text-3xl font-bold text-purple-400 mb-6">Add New Course</Text>
 
       {/* Input Fields */}

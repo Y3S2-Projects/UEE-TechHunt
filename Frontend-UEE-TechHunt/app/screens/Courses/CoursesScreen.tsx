@@ -144,7 +144,7 @@ export default function CoursesScreen() {
   );
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-3A7D99-950">
       <StatusBar barStyle="light-content" />
       
       {/* Header Section */}
