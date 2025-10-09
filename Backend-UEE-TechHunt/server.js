@@ -4,6 +4,8 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import paymentRoutes from './routes/payment.js';
+import feedbackRoutes from './routes/feedback.js';
+
 
 const app = express();
 
@@ -18,8 +20,9 @@ console.log('🔍 PORT:', process.env.PORT || 5000);
 
 // Payment routes
 app.use('/api/payment', paymentRoutes);
+//feedback
+app.use('/api/feedback', feedbackRoutes);
 
-// Your other routes...
 
 // MongoDB connection
 if (process.env.MONGODB_URI) {
