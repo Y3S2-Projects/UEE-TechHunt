@@ -20,7 +20,7 @@ export default function CheckoutScreen() {
   const [paymentReady, setPaymentReady] = useState(false);
 
   // Example order details - replace with your actual data
-  const orderAmount = 1999; // $19.99 in cents
+  const orderAmount = 2999; // $19.99 in cents
   const currency = 'usd';
 
   const initializePaymentSheet = async () => {
@@ -83,7 +83,7 @@ export default function CheckoutScreen() {
         [
           {
             text: 'OK',
-            onPress: () => router.back(),
+            onPress: () => router.push('/screens/Courses/AfterPayCourse'),// Navigate to home or orders screen
           },
         ]
       );

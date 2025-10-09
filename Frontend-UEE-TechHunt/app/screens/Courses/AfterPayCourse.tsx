@@ -1,22 +1,26 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, Alert, ScrollView, StatusBar } from "react-native";
-import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { OnboardingStackParamList } from "../../navigation/OnboardingStack";
-import { useRouter } from "expo-router";
+import { View, Text, Image, TouchableOpacity, Alert, ScrollView, StatusBar, TextInput } from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
-type CourseDetailsRouteProp = RouteProp<OnboardingStackParamList, "CourseDetails">;
-type CourseDetailsNavProp = StackNavigationProp<OnboardingStackParamList, "CourseDetails">;
-
-export default function CourseDetailsScreen() {
-  const route = useRoute<CourseDetailsRouteProp>();
-  const navigation = useNavigation<CourseDetailsNavProp>();
-  const { course } = route.params;
+export default function AfterPayCourse() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  
+  // Parse course data
+  const course = params.courseData ? JSON.parse(params.courseData as string) : {
+    title: "Premium Course",
+    description: "Course description",
+    thumbnail: "https://via.placeholder.com/800x400",
+    instructor: "Instructor",
+    contact: "+1234567890",
+    email: "instructor@example.com"
+  };
 
   const [likes, setLikes] = useState(0);
   const [rating, setRating] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [feedbackRating, setFeedbackRating] = useState(0);
 
   const handleLike = () => {
     setIsLiked(!isLiked);
@@ -25,16 +29,21 @@ export default function CourseDetailsScreen() {
   
   const handleRate = (rate: number) => setRating(rate);
 
-  const handlePayment = () => {
-    // Navigate to checkout with course data
-    router.push({
-      pathname: '/payment/checkout',
-      params: {
-        courseId: course.id || course.title,
-        courseTitle: course.title,
-        courseData: JSON.stringify(course) // Pass entire course object
-      }
-    });
+  const handleSubmitFeedback = () => {
+    if (feedbackRating === 0) {
+      Alert.alert("Rating Required", "Please rate the course before submitting feedback.");
+      return;
+    }
+    
+    Alert.alert(
+      "Thank you!",
+      "Your feedback has been submitted successfully.",
+      [{ text: "OK" }]
+    );
+    
+    // Clear feedback form
+    setFeedback("");
+    setFeedbackRating(0);
   };
 
   return (
@@ -55,7 +64,7 @@ export default function CourseDetailsScreen() {
           
           {/* Back Button - Floating */}
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={() => router.back()}
             className="absolute top-12 left-5 bg-black/50 backdrop-blur-xl rounded-full w-10 h-10 items-center justify-center"
             style={{ backdropFilter: 'blur(20px)' }}
           >
@@ -71,10 +80,18 @@ export default function CourseDetailsScreen() {
               <Text className="text-xl">{isLiked ? "❤️" : "🤍"}</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Enrolled Badge */}
+          <View className="absolute bottom-9 left-6">
+            <View className="bg-emerald-500/90 backdrop-blur-xl px-6 py-2 rounded-full flex-row items-center">
+              <Text className="text-white font-bold mr-2">✓</Text>
+              <Text className="text-white font-bold">Enrolled</Text>
+            </View>
+          </View>
         </View>
 
         {/* Content Card - Overlapping Design */}
-        <View className="bg-slate-950 -mt-8 rounded-t-3xl px-6 pt-6 pb-32">
+        <View className="bg-slate-950 -mt-8 rounded-t-3xl px-6 pt-6 pb-8">
           
           {/* Course Badge */}
           <View className="flex-row items-center mb-4">
@@ -129,15 +146,18 @@ export default function CourseDetailsScreen() {
                 <Text className="text-white font-bold text-lg">{course.instructor}</Text>
                 <Text className="text-slate-400 text-sm">Course Instructor</Text>
               </View>
-              <TouchableOpacity
+              <TouchableOpacity 
                 className="bg-white/10 px-4 py-2 rounded-full"
-                onPress={() =>
-                  navigation.navigate("Chat", {
-                    instructor: course.instructor,
-                    contact: course.contact,
-                    email: course.email,
-                  })
-                }
+                onPress={() => {
+                  router.push({
+                    pathname: '/screens/Messages/ChatMiddleScreen',
+                    params: {
+                      instructor: course.instructor,
+                      contact: course.contact,
+                      email: course.email,
+                    }
+                  });
+                }}
               >
                 <Text className="text-white font-semibold text-sm">Chat</Text>
               </TouchableOpacity>
@@ -185,18 +205,65 @@ export default function CourseDetailsScreen() {
               </View>
             ))}
           </View>
+
+          {/* FEEDBACK SECTION - REPLACES PAYMENT BUTTON */}
+          <View className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-2xl p-6 border border-blue-500/20 mb-6">
+            <Text className="text-white font-bold text-xl mb-4">Share Your Feedback</Text>
+            
+            {/* Feedback Rating */}
+            <Text className="text-slate-300 text-sm mb-2">How would you rate this course?</Text>
+            <View className="flex-row items-center mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity 
+                  key={star} 
+                  onPress={() => setFeedbackRating(star)}
+                  className="mr-2"
+                >
+                  <Text className="text-3xl">
+                    {star <= feedbackRating ? "⭐" : "☆"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+              {feedbackRating > 0 && (
+                <Text className="text-slate-400 ml-2 font-semibold">
+                  {feedbackRating}.0
+                </Text>
+              )}
+            </View>
+
+            {/* Feedback Text Input */}
+            <Text className="text-slate-300 text-sm mb-2">Tell us about your experience</Text>
+            <TextInput
+              value={feedback}
+              onChangeText={setFeedback}
+              placeholder="Share your thoughts about this course..."
+              placeholderTextColor="#64748b"
+              multiline
+              numberOfLines={4}
+              className="bg-slate-900/50 rounded-xl p-4 text-white mb-4"
+              style={{ 
+                minHeight: 100, 
+                textAlignVertical: 'top',
+                borderColor: '#334155',
+                borderWidth: 1
+              }}
+            />
+
+            {/* Submit Button */}
+            <TouchableOpacity
+              onPress={handleSubmitFeedback}
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl py-4 items-center"
+            >
+              <Text className="text-white font-bold text-base">Submit Feedback</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Access Course Materials Button */}
+          <TouchableOpacity className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl py-4 items-center mb-4">
+            <Text className="text-white font-bold text-lg">Access Course Materials</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
-
-      {/* Fixed Payment Button at Bottom */}
-      <View className="absolute bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 px-6 py-4">
-        <TouchableOpacity
-          onPress={handlePayment}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl py-4 items-center shadow-lg"
-        >
-          <Text className="text-white font-bold text-lg">Enroll Now - $29.99</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }

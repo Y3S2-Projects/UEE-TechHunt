@@ -1,8 +1,8 @@
 // app/payment/_layout.tsx
 import { useEffect, useCallback } from 'react';
-import { Linking } from 'react-native';
+import { Linking, TouchableOpacity, Text } from 'react-native';
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 
 const PUBLISHABLE_KEY = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
@@ -42,17 +42,27 @@ function DeepLinkHandler({ children }: { children: React.ReactNode }) {
 }
 
 export default function PaymentLayout() {
+  const router = useRouter();
+
   return (
     <StripeProvider
       publishableKey={PUBLISHABLE_KEY}
       merchantIdentifier="merchant.identifier" // Required for Apple Pay
-      urlScheme="techhunt" //  app's URL scheme
+      urlScheme="techhunt" // app's URL scheme
     >
       <DeepLinkHandler>
         <Stack
           screenOptions={{
             headerShown: true,
             headerTitle: 'Payment',
+            headerLeft: () => (
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 }}
+              >
+                <Text style={{ fontSize: 18, color: '#007AFF' }}>{'<'} Back</Text>
+              </TouchableOpacity>
+            ),
           }}
         />
       </DeepLinkHandler>
