@@ -19,5 +19,5 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // API routes
 app.use("/api/cv", cvRoutes);
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 6000;
 app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

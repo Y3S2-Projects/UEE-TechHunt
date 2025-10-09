@@ -1,266 +1,237 @@
 import React, { useState, useEffect } from "react";
-import { useNavigation } from "@react-navigation/native";
 import {
   View,
   Text,
   TouchableOpacity,
-  Alert,
   ScrollView,
   ActivityIndicator,
-  Dimensions,
+  Alert,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
-import axios from "axios";
+import * as Progress from "react-native-progress";
 
-// Chart placeholder (install react-native-chart-kit if needed)
-const screenWidth = Dimensions.get("window").width;
-
-type Stats = {
-  projects: number;
-  earnings: number;
-  completedCourses: number;
-  uploadsCount?: number;
-};
+const API_BASE_URL = "http://192.168.196.23:6000";
 
 export default function FreelancerDashboard() {
-  const navigation = useNavigation();
-
-  const [stats, setStats] = useState<Stats>({
-    projects: 12,
-    earnings: 1500,
-    completedCourses: 8,
-    uploadsCount: 0,
-  });
-
-  const [rank, setRank] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // <-- UPDATE this to your backend IP or localhost
-  const BACKEND_BASE = "http://192.168.1.10:6000"; // Android emulator
-  // const BACKEND_BASE = "http://192.168.1.10:6000"; // real device
-
-  // Fetch stats from backend
-  const fetchStats = async () => {
-    try {
-      const res = await axios.get(`${BACKEND_BASE}/api/cv/stats`);
-      if (res.data) {
-        setStats(prev => ({
-          ...prev,
-          projects: res.data.projects,
-          earnings: res.data.earnings,
-          completedCourses: res.data.completedCourses,
-          uploadsCount: res.data.uploadsCount,
-        }));
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        console.warn("Error fetching stats:", err.message);
-      } else {
-        console.warn("Error fetching stats:", err);
-      }
-    }
-  };
+  const [uploading, setUploading] = useState(false);
+  const [rank, setRank] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [stats, setStats] = useState<any>(null);
+  const [hasCv, setHasCv] = useState(false);
 
   useEffect(() => {
     fetchStats();
   }, []);
 
-  // Upload CV to backend
-  const handleUploadCV = async () => {
+  const fetchStats = async () => {
     try {
-      const result = await DocumentPicker.getDocumentAsync({
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/cv/stats`);
+      const data = await res.json();
+      setStats(data);
+    } catch (err) {
+      console.error("Stats error:", err);
+      Alert.alert("Error", "Failed to load stats");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const uploadCV = async () => {
+    try {
+      const res = await DocumentPicker.getDocumentAsync({
         type: [
           "application/pdf",
-          "application/msword",
           "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         ],
       });
 
-      if (!result.canceled) {
-        setLoading(true);
+      if (res.type !== "success") return;
 
-        // @ts-ignore
-        const fileUri = result.assets[0].uri;
-        const fileName = result.assets[0].name;
-        const fileType = fileName.endsWith(".pdf")
-          ? "application/pdf"
-          : fileName.endsWith(".docx")
-          ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-          : "application/msword";
+      const formData = new FormData();
+      formData.append("cv", {
+        uri: res.uri,
+        type: res.mimeType || "application/pdf",
+        name: res.name || "cv.pdf",
+      });
 
-        const formData = new FormData();
-        formData.append("cv", {
-          uri: fileUri,
-          name: fileName,
-          type: fileType,
-        } as any); // 👈 cast to any for TypeScript
+      setUploading(true);
 
+      const response = await fetch(`${API_BASE_URL}/api/cv/upload`, {
+        method: "POST",
+        body: formData,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-        const res = await axios.post(`${BACKEND_BASE}/api/cv/upload`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+      const result = await response.json();
 
-        setLoading(false);
-
-        if (res.data.success) {
-          setRank(res.data.data.analysis.rank);
-          Alert.alert(
-            "CV Uploaded Successfully!",
-            `Your freelancer rank is: ${res.data.data.analysis.rank}`
-          );
-          fetchStats(); // Refresh stats including uploads count
-        } else {
-          Alert.alert("Upload Failed", "Please try again.");
-        }
+      if (result.success) {
+        Alert.alert("Success", "CV uploaded and analyzed successfully!");
+        setHasCv(true);
+        fetchStats();
+      } else {
+        Alert.alert("Failed", result.error || "Something went wrong");
       }
     } catch (err) {
-      console.log(err);
-      setLoading(false);
-      Alert.alert("Error", "Failed to upload CV.");
+      console.error(err);
+      Alert.alert("Error", "Upload failed. Try again.");
+    } finally {
+      setUploading(false);
     }
   };
 
-  // Stat card
-  const StatCard = ({
-    title,
-    value,
-    unit,
-    colorClass,
-    icon,
-  }: {
-    title: string;
-    value: number;
-    unit: string;
-    colorClass: string;
-    icon: string;
-  }) => (
-    <View
-      style={{
-        flex: 1,
-        marginHorizontal: 4,
-        padding: 16,
-        borderRadius: 16,
-        backgroundColor: colorClass,
-        shadowColor: "#000",
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-      }}
-    >
-      <Text style={{ fontSize: 28 }}>{icon}</Text>
-      <Text style={{ fontSize: 18, fontWeight: "600", color: "#fff", marginTop: 4 }}>
-        {title}
-      </Text>
-      <Text style={{ fontSize: 22, fontWeight: "bold", color: "#fff", marginTop: 4 }}>
-        {value}
-        {unit}
-      </Text>
-    </View>
-  );
+  const viewAnalysis = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/cv/latest`);
+      const result = await res.json();
+
+      if (result.success && result.data) {
+        const { analysis } = result.data;
+        setRank(analysis.rank);
+        setSkills(analysis.skills);
+      } else {
+        Alert.alert("No Data", "No CV analysis found. Please upload first.");
+      }
+    } catch (err) {
+      console.error("Analysis error:", err);
+      Alert.alert("Error", "Failed to load CV analysis.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: "#f9fafb", padding: 16 }}>
-      <Text style={{ fontSize: 32, fontWeight: "800", color: "#5b21b6", marginTop: 50}}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: "#f5f7fa" }}
+      contentContainerStyle={{ padding: 20, marginTop: 60 }}
+    >
+      <Text style={{ fontSize: 26, fontWeight: "bold", marginBottom: 10 }}>
         Freelancer Dashboard
       </Text>
-      <Text style={{ fontSize: 16, color: "#6b7280", marginBottom: 16 }}>
-        Welcome back! Track your stats and upload your CV to get ranked.
+      <Text style={{ fontSize: 16, color: "#555", marginBottom: 20 }}>
+        Upload your CV, analyze your skills, and view your freelancer rank.
       </Text>
 
-      {/* --- Stats cards --- */}
-      <View style={{ flexDirection: "row", marginBottom: 24 }}>
-        <StatCard title="Projects" value={stats.projects} unit="" colorClass="#2563eb" icon="🛠️" />
-        <StatCard title="Earnings" value={stats.earnings} unit="$" colorClass="#16a34a" icon="💰" />
-        <StatCard title="Courses" value={stats.completedCourses} unit="" colorClass="#f97316" icon="🎓" />
-      </View>
-
-      {/* --- CV Upload --- */}
-      <View style={{ backgroundColor: "#fff", padding: 16, borderRadius: 16, marginBottom: 24 }}>
-        <Text style={{ fontSize: 18, fontWeight: "700", marginBottom: 8 }}>Upload CV</Text>
-        <Text style={{ fontSize: 14, color: "#6b7280", marginBottom: 16 }}>
-          Upload your CV (PDF/Word) to extract skills and determine your freelancer rank.
-        </Text>
-
-        <TouchableOpacity
-          onPress={handleUploadCV}
-          style={{
-            backgroundColor: "#7c3aed",
-            paddingVertical: 14,
-            borderRadius: 12,
-            alignItems: "center",
-            marginBottom: 16,
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "700", fontSize: 16 }}>⬆️ Upload CV</Text>
-        </TouchableOpacity>
-
-        {loading && <ActivityIndicator size="large" color="#7c3aed" />}
-        {rank && (
-          <View
-            style={{
-              backgroundColor: "#ede9fe",
-              padding: 16,
-              borderRadius: 12,
-              borderLeftWidth: 4,
-              borderLeftColor: "#7c3aed",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ fontSize: 18, fontWeight: "700", color: "#5b21b6" }}>
-              🏆 Rank: {rank}
-            </Text>
-            <Text style={{ fontSize: 24 }}>🎉</Text>
-          </View>
-        )}
-      </View>
-
-      {/* --- Quick Actions --- */}
-      <View style={{ flexDirection: "row", marginBottom: 24 }}>
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: "#3b82f6",
-            padding: 14,
-            borderRadius: 12,
-            marginRight: 8,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "600" }}>View Projects</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: "#10b981",
-            padding: 14,
-            borderRadius: 12,
-            marginLeft: 8,
-            alignItems: "center",
-          }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "600" }}>Manage Courses</Text>
-        </TouchableOpacity>
-      </View>
-
+      {/* Upload Button */}
       <TouchableOpacity
+        onPress={uploadCV}
         style={{
-          backgroundColor: "#d1d5db",
-          padding: 12,
-          borderRadius: 12,
-          marginBottom: 24,
+          backgroundColor: "#007bff",
+          padding: 14,
+          borderRadius: 10,
+          marginBottom: 15,
           alignItems: "center",
         }}
-        onPress={() => navigation.goBack()}
       >
-        <Text style={{ color: "#374151", fontWeight: "500" }}>← Go Back</Text>
+        <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+          {uploading ? "Uploading..." : "Upload CV"}
+        </Text>
       </TouchableOpacity>
 
-      {/* Footer */}
-      <View style={{ alignItems: "center", marginBottom: 24 }}>
-        <Text style={{ color: "#9ca3af", fontSize: 12 }}>
-          © 2024 UEE TechHunt
+      {/* View Analysis Button */}
+      <TouchableOpacity
+        onPress={viewAnalysis}
+        style={{
+          backgroundColor: "#00b894",
+          padding: 14,
+          borderRadius: 10,
+          marginBottom: 20,
+          alignItems: "center",
+        }}
+      >
+        <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600" }}>
+          View CV Analysis
         </Text>
+      </TouchableOpacity>
+
+      {/* Progress Loader */}
+      {(uploading || loading) && (
+        <View style={{ alignItems: "center", marginBottom: 20 }}>
+          <Progress.CircleSnail color={["#007bff", "#00b894"]} />
+          <Text style={{ marginTop: 10 }}>
+            {uploading ? "Uploading & Analyzing..." : "Loading..."}
+          </Text>
+        </View>
+      )}
+
+      {/* Analysis Section */}
+      {skills.length > 0 && (
+        <View
+          style={{
+            backgroundColor: "#fff",
+            borderRadius: 10,
+            padding: 15,
+            marginBottom: 20,
+          }}
+        >
+          <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: 8 }}>
+            🧠 Extracted Skills
+          </Text>
+          {skills.map((skill, index) => (
+            <Text key={index} style={{ color: "#333", marginBottom: 3 }}>
+              • {skill}
+            </Text>
+          ))}
+          <Text style={{ fontWeight: "700", marginTop: 10 }}>
+            🏆 Rank: {rank}
+          </Text>
+        </View>
+      )}
+
+      {/* Stats Section */}
+      <View
+        style={{
+          backgroundColor: "#fff",
+          borderRadius: 10,
+          padding: 15,
+        }}
+      >
+        <Text style={{ fontSize: 18, fontWeight: "600", marginBottom: 10 }}>
+          📊 CV Statistics
+        </Text>
+
+        {loading ? (
+          <ActivityIndicator size="small" color="#007bff" />
+        ) : stats ? (
+          <>
+            <Text>📁 Total Uploads: {stats.uploadsCount}</Text>
+            <Text>
+              📚 Avg Skills per CV: {stats.avgSkillCount?.toFixed(1)}
+            </Text>
+
+            <Text style={{ marginTop: 10, fontWeight: "600" }}>
+              🏆 Rank Distribution
+            </Text>
+            <Text>Level 1: {stats.rankDistribution?.level1}</Text>
+            <Text>Level 2: {stats.rankDistribution?.level2}</Text>
+            <Text>Top Rated: {stats.rankDistribution?.topRated}</Text>
+
+            <Text style={{ marginTop: 10, fontWeight: "600" }}>🔥 Top Skills</Text>
+            {stats.topSkills?.map((s: any, i: number) => (
+              <Text key={i}>
+                • {s.skill} ({s.count})
+              </Text>
+            ))}
+
+            <Text style={{ marginTop: 10, fontWeight: "600" }}>
+              🕒 Recent Uploads:
+            </Text>
+            {stats.recentUploads?.length > 0 ? (
+              stats.recentUploads.map((u: any, i: number) => (
+                <View key={i} style={{ marginTop: 5 }}>
+                  <Text>📄 {u.originalName}</Text>
+                  <Text style={{ color: "#555" }}>Rank: {u.analysis.rank}</Text>
+                </View>
+              ))
+            ) : (
+              <Text>No recent uploads</Text>
+            )}
+          </>
+        ) : (
+          <Text>No data available</Text>
+        )}
       </View>
     </ScrollView>
   );
