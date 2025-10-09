@@ -121,16 +121,18 @@ export default function CheckoutScreen() {
           <Text style={styles.loadingText}>Preparing payment...</Text>
         </View>
       ) : (
-        <Pressable
-          style={({ pressed }) => [
-            styles.payButton,
-            { opacity: pressed ? 0.8 : 1 },
-          ]}
-          onPress={handlePayment}
-          disabled={!paymentReady}
-        >
-          <Text style={styles.payButtonText}>Pay ${(orderAmount / 100).toFixed(2)}</Text>
-        </Pressable>
+<Pressable
+  className={`bg-slate-200 rounded-xl py-4 items-center justify-center mt-4 ${
+    !paymentReady ? "opacity-50" : "opacity-100"
+  }`}
+  onPress={handlePayment}
+  disabled={!paymentReady}
+>
+  <Text className="text-#020617 text-lg font-semibold">
+    Pay ${(orderAmount / 100).toFixed(2)}
+  </Text>
+</Pressable>
+
       )}
 
       {/* Security Note */}
@@ -144,11 +146,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#020617',
   },
   // THEME COLOR: Card background (white)
   summaryContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#E2E8F0',
     borderRadius: 12,
     padding: 20,
     marginBottom: 30,
@@ -186,7 +188,7 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#9C27B0',
   },
   // THEME COLOR: Border color (light gray)
   divider: {

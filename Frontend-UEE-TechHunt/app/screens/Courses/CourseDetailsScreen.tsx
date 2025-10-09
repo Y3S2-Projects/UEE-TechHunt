@@ -146,7 +146,7 @@ export default function CourseDetailsScreen() {
           </View>
 
           {/* Rating Section */}
-          <View className="mb-6">
+          {/* <View className="mb-6">
             <Text className="text-white font-bold text-lg mb-3">Rate this course</Text>
             <View className="flex-row items-center bg-slate-900/50 rounded-2xl p-4">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -166,7 +166,7 @@ export default function CourseDetailsScreen() {
                 </Text>
               )}
             </View>
-          </View>
+          </View> */}
 
           {/* What You'll Learn */}
           <View className="mb-8">

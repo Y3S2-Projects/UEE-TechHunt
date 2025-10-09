@@ -55,12 +55,20 @@ export default function PaymentLayout() {
           screenOptions={{
             headerShown: true,
             headerTitle: 'Payment',
+                headerStyle: {
+      backgroundColor: '#020617', // 👈 header background color
+    },
+    headerTintColor: '#ffffff', // 👈 text + back button color (white for contrast)
+    headerTitleStyle: {
+      fontWeight: '600',
+      fontSize: 18,
+    },
             headerLeft: () => (
               <TouchableOpacity
                 onPress={() => router.back()}
-                style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 18 , paddingVertical: 14}}
               >
-                <Text style={{ fontSize: 18, color: '#007AFF' }}>{'<'} Back</Text>
+                <Text style={{ fontSize: 15, color: '#b794f4' }}>{'<'} Back</Text>
               </TouchableOpacity>
             ),
           }}

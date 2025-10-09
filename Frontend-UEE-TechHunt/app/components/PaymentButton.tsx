@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFFFFF', // THEME COLOR: Button text (white)
-    fontSize: 16,
+    fontSize: 26,
     fontWeight: '600',
   },
 });
