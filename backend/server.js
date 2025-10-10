@@ -6,6 +6,7 @@ const fs = require("fs");
 const dotenv = require("dotenv");
 const connectDB = require("./config/connectDB");
 const cvRoutes = require("./routes/cvRoutes");
+const courseRoutes = require("./routes/courseRoutes");
 
 // Load environment variables
 dotenv.config();
@@ -40,6 +41,7 @@ app.use("/uploads", express.static(UPLOADS_DIR));
 
 // API routes
 app.use("/api/cv", cvRoutes);
+app.use("/api/courses", courseRoutes);
 
 // Test route
 app.get("/", (req, res) => {
@@ -48,7 +50,9 @@ app.get("/", (req, res) => {
     endpoints: {
       upload: "POST /api/cv/upload",
       latest: "GET /api/cv/latest",
-      stats: "GET /api/cv/stats"
+      stats: "GET /api/cv/stats",
+      getCourses: "GET /api/courses",     // <-- ADDED
+      createCourse: "POST /api/courses"
     }
   });
 });
