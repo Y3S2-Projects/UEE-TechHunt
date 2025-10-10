@@ -78,8 +78,8 @@ export default function CourseDetailsScreen() {
           
           {/* Course Badge */}
           <View className="flex-row items-center mb-4">
-            <View className="bg-purple-500/20 px-4 py-1.5 rounded-full mr-2">
-              <Text className="text-purple-400 text-xs font-semibold uppercase tracking-wider">
+            <View className="bg-green-500/20 px-4 py-1.5 rounded-full mr-2">
+              <Text className="text-green-400 text-xs font-semibold uppercase tracking-wider">
                 Featured Course
               </Text>
             </View>

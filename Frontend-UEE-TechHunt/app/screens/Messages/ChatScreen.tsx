@@ -387,8 +387,8 @@ export default function ChatScreen() {
       <View
         className={`m-2 px-4 py-2 rounded-2xl max-w-[80%]
           ${isMe
-            // Your bubble style: Purple background, flat bottom-right corner, on the right
-            ? "bg-purple-600 self-end rounded-br-md"
+            // Your bubble style: Green background, flat bottom-right corner, on the right
+            ? "bg-green-600 self-end rounded-br-md"
             // Instructor bubble style: Dark gray background, flat top-left corner, on the left
             : "bg-slate-800 self-start rounded-tl-md"
           }`}
@@ -423,7 +423,7 @@ export default function ChatScreen() {
       {/* Header with Call/Email Actions */}
       <View className="flex-row items-center justify-between bg-slate-900 p-4 pt-12 shadow-lg border-b border-slate-800">
         <TouchableOpacity onPress={() => navigation.goBack()} className="p-2 ml-2">
-          <Text className="text-purple-400 text-2xl font-bold">{"←"}</Text>
+          <Text className="text-green-400 text-2xl font-bold">{"←"}</Text>
         </TouchableOpacity>
 
         <View className="flex-1 ml-4">

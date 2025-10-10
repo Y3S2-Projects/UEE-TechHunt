@@ -93,8 +93,8 @@ const CoursesScreen: React.FC = () => {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-slate-950">
-        <ActivityIndicator size="large" color="#a855f7" />
-        <Text className="text-slate-400 mt-4 text-lg">Loading Courses...</Text>
+        <ActivityIndicator size="large" color="#00FFC2" />
+        <Text className="text-#00FFC2-400 mt-4 text-lg">Loading Courses...</Text>
       </View>
     );
   }
@@ -112,9 +112,9 @@ const CoursesScreen: React.FC = () => {
   const renderCourse = ({ item }: { item: Course }) => (
     <TouchableOpacity
       onPress={() => navigation.navigate("CourseDetails", { course: item })}
-      className="bg-slate-900 rounded-3xl mb-4 overflow-hidden border border-slate-800"
+      className="bg-#00FFC2-900 rounded-3xl mb-4 overflow-hidden border border-slate-800"
       style={{
-        shadowColor: '#8b5cf6',
+        shadowColor: '#00FFC2',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
         shadowRadius: 12,
@@ -127,11 +127,11 @@ const CoursesScreen: React.FC = () => {
           className="w-full h-48"
           resizeMode="cover"
         />
-        <View className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/80" />
-        <View className="absolute top-3 left-3 bg-purple-500/90 backdrop-blur-xl px-3 py-1.5 rounded-full">
+        <View className="absolute inset-0 bg-gradient-to-b from-transparent to-#00FFC2-900/80" />
+        <View className="absolute top-3 left-3 bg-#00FFC2-500/90 backdrop-blur-xl px-3 py-1.5 rounded-full">
           <Text className="text-white text-xs font-bold">{item.level}</Text>
         </View>
-        <View className="absolute top-3 right-3 bg-white/20 backdrop-blur-xl px-3 py-1.5 rounded-full flex-row items-center">
+        <View className="absolute top-3 right-3 bg-#00FFC2/20 backdrop-blur-xl px-3 py-1.5 rounded-full flex-row items-center">
           <Text className="text-yellow-400 text-xs mr-1">⭐</Text>
           <Text className="text-white text-xs font-bold">
             {item.rating > 0 ? item.rating.toFixed(1) : 'N/A'}
@@ -157,8 +157,8 @@ const CoursesScreen: React.FC = () => {
               <Text className="text-slate-500 text-xs">{item.students} students</Text>
             </View>
           </View>
-          <View className="bg-purple-500/20 px-3 py-1.5 rounded-full">
-            <Text className="text-purple-400 text-xs font-bold">View →</Text>
+          <View className="bg-green-500/20 px-3 py-1.5 rounded-full">
+            <Text className="text-green-400 text-xs font-bold">View →</Text>
           </View>
         </View>
       </View>
@@ -184,20 +184,20 @@ const CoursesScreen: React.FC = () => {
           </View>
         </View>
         <Text className="text-4xl font-black text-white mb-2">Explore</Text>
-        <Text className="text-xl text-purple-400 font-semibold mb-6">Popular Courses</Text>
+        <Text className="text-xl text-green-400 font-semibold mb-6">Popular Courses</Text>
         <View className="bg-slate-900 rounded-2xl px-5 py-4 mb-4 flex-row items-center border border-slate-800">
           <Text className="text-xl mr-3">🔍</Text>
           <TextInput 
             placeholder="Search courses..."
-            placeholderTextColor="#64748b"
+            placeholderTextColor="#6B7280"
             className="flex-1 text-white text-base"
             value={searchQuery}
             onChangeText={handleSearch}
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={() => setSearchQuery("")}>
-              <View className="bg-slate-800 rounded-full w-6 h-6 items-center justify-center">
-                <Text className="text-slate-400 text-xs">✕</Text>
+              <View className="bg-green-800 rounded-full w-6 h-6 items-center justify-center">
+                <Text className="text-green-400 text-xs">✕</Text>
               </View>
             </TouchableOpacity>
           )}
@@ -209,7 +209,7 @@ const CoursesScreen: React.FC = () => {
               onPress={() => setSelectedFilter(filter)}
               className={`mr-3 px-5 py-2.5 rounded-full ${
                 selectedFilter === filter 
-                  ? "bg-purple-600" 
+                  ? "bg-green-600" 
                   : "bg-slate-900 border border-slate-800"
               }`}
             >
@@ -238,9 +238,9 @@ const CoursesScreen: React.FC = () => {
       <View className="absolute bottom-6 left-6 right-6">
         <TouchableOpacity
           onPress={() => navigation.navigate("AddCourse", { addCourse })}
-          className="bg-purple-600 rounded-2xl py-4 flex-row items-center justify-center shadow-lg"
+          className="bg-green-600 rounded-2xl py-4 flex-row items-center justify-center shadow-lg"
           style={{
-            shadowColor: '#a855f7',
+            shadowColor: '#green-600',
             shadowOffset: { width: 0, height: 8 },
             shadowOpacity: 0.5,
             shadowRadius: 24,
