@@ -16,7 +16,7 @@ import ProgressStepper from "../../components/ProgressStepper";
 const { width } = Dimensions.get("window");
 
 // Your n8n webhook URL
-const N8N_WEBHOOK_URL = "https://sasin00.app.n8n.cloud/webhook-test/onboarding-quiz";
+const N8N_WEBHOOK_URL = "https://ransara.app.n8n.cloud/webhook-test/onboarding-quiz";
 
 type QuizScreenNavProp = StackNavigationProp<OnboardingStackParamList, "Quiz">;
 

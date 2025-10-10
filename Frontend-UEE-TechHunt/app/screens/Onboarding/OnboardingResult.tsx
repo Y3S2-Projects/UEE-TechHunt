@@ -263,7 +263,7 @@ export default function OnboardingResult({ navigation, route }: Props) {
       </ScrollView>
 
       {/* Fixed Bottom Button */}
-      <View style={{ backgroundColor: '#E5E5E5', borderTopWidth: 1, borderTopColor: '#3A7D99' }} className="absolute bottom-0 left-0 right-0 px-6 py-3 mb-12">
+      <View style={{  }} className="absolute bottom-0 left-0 right-0 px-6 py-3 mb-12">
         <TouchableOpacity
           onPress={handleStartLearning}
           style={{ backgroundColor: '#00FFC2' }}
