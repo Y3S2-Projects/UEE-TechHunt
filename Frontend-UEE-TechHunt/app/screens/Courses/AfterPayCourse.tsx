@@ -159,7 +159,7 @@ export default function AfterPayCourse() {
           </View>
 
           {/* Rating Section */}
-          <View className="mb-6">
+          {/* <View className="mb-6">
             <Text className="text-white font-bold text-lg mb-3">Rate this course</Text>
             <View className="flex-row items-center bg-slate-900/50 rounded-2xl p-4">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -169,7 +169,7 @@ export default function AfterPayCourse() {
               ))}
               {rating > 0 && <Text className="text-slate-400 ml-2 font-semibold">{rating}.0</Text>}
             </View>
-          </View>
+          </View> */}
 
           {/* Conversational Feedback */}
           <View className="mb-6">
