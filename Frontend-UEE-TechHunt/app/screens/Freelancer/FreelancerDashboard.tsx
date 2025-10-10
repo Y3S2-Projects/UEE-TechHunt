@@ -7,30 +7,35 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  Platform,
   StyleSheet,
+  Animated,
+  Dimensions,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import * as Progress from "react-native-progress";
 import * as FileSystem from "expo-file-system";
 
 // IMPORTANT: Replace with your computer's IP address
-// Find it by running: ipconfig (Windows) or ifconfig (Mac/Linux)
 const API_BASE_URL = "http://localhost:6000";
 
-// --- Theme Colors ---
+// --- Dark Theme Colors ---
 const COLORS = {
-  primary: "#4F46E5", // Deep Indigo/Violet for main actions
-  secondary: "#10B981", // Emerald Green for success/secondary actions
-  background: "#F9FAFB", // Light Gray Background
-  card: "#FFFFFF", // White for cards
-  textPrimary: "#1F2937", // Dark Slate for main text
-  textSecondary: "#6B7280", // Gray for secondary text
-  rankBadge: "#FBBF24", // Amber for rank
+  primary: "#00FFC2", // Purple
+  textPrimary2: "#000000",
+  primaryLight: "#00FFC2",
+  secondary: "#10B981", // Emerald
+  secondaryLight: "#00FFC2",
+  background: "#0F172A", // Dark Slate
+  backgroundLight: "#1E293B",
+  card: "#1E293B",
+  cardHover: "#334155",
+  textPrimary: "#ffffffff",
+  textSecondary: "#94A3B8",
+  accent: "#F59E0B", // Amber
   danger: "#EF4444",
+  success: "#10B981",
+  border: "#334155",
 };
-
-// --- Component Definition (Functionality Unchanged) ---
 
 export default function FreelancerDashboard() {
   const [loading, setLoading] = useState(false);
@@ -39,14 +44,64 @@ export default function FreelancerDashboard() {
   const [skills, setSkills] = useState<string[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [serverStatus, setServerStatus] = useState<string>("checking");
+  
+  // Animation values
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [slideAnim] = useState(new Animated.Value(50));
+  const [pulseAnim] = useState(new Animated.Value(1));
+  const [buttonScale] = useState(new Animated.Value(1));
 
   const navigation = useNavigation();
 
   useEffect(() => {
     checkServerConnection();
+    // Entrance animation
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    // Pulse animation for status
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
   }, []);
 
-  // Check if server is reachable
+  const animateButton = () => {
+    Animated.sequence([
+      Animated.timing(buttonScale, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(buttonScale, {
+        toValue: 1,
+        tension: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
   const checkServerConnection = async () => {
     try {
       console.log("Checking server connection...");
@@ -102,6 +157,7 @@ export default function FreelancerDashboard() {
   };
 
   const uploadCV = async () => {
+    animateButton();
     try {
       console.log("Opening document picker...");
       const res = await DocumentPicker.getDocumentAsync({
@@ -124,7 +180,6 @@ export default function FreelancerDashboard() {
 
       setUploading(true);
 
-      // Method 1: Using expo-file-system (More reliable for React Native)
       try {
         console.log("Uploading using FileSystem.uploadAsync...");
         
@@ -156,8 +211,6 @@ export default function FreelancerDashboard() {
         }
       } catch (uploadErr: any) {
         console.error("FileSystem upload error:", uploadErr);
-        
-        // Fallback to XMLHttpRequest method
         console.log("Trying fallback upload method...");
         await uploadWithXHR(file);
       }
@@ -173,12 +226,11 @@ export default function FreelancerDashboard() {
     }
   };
 
-  // Fallback upload method using XMLHttpRequest
   const uploadWithXHR = async (file: any) => {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       
-      xhr.timeout = 30000; // 30 seconds
+      xhr.timeout = 30000;
       
       xhr.upload.addEventListener("progress", (e) => {
         if (e.lengthComputable) {
@@ -238,6 +290,7 @@ export default function FreelancerDashboard() {
   };
 
   const viewAnalysis = async () => {
+    animateButton();
     try {
       setLoading(true);
       const controller = new AbortController();
@@ -266,35 +319,36 @@ export default function FreelancerDashboard() {
     }
   };
 
-  // --- Render (Themed Frontend) ---
-
   const getStatusStyle = () => {
     switch (serverStatus) {
       case "connected":
         return {
-          backgroundColor: "#D1FAE5", // Light green
-          borderColor: COLORS.secondary,
-          color: COLORS.secondary,
+          backgroundColor: "rgba(16, 185, 129, 0.15)",
+          borderColor: COLORS.success,
+          color: COLORS.success,
           icon: "✅",
           message: "Connected",
+          glow: true,
         };
       case "checking":
         return {
-          backgroundColor: "#FEF3C7", // Light yellow
-          borderColor: COLORS.rankBadge,
-          color: COLORS.rankBadge,
+          backgroundColor: "rgba(245, 158, 11, 0.15)",
+          borderColor: COLORS.accent,
+          color: COLORS.accent,
           icon: "⏳",
           message: "Checking...",
+          glow: false,
         };
       case "disconnected":
       case "error":
       default:
         return {
-          backgroundColor: "#FEE2E2", // Light red
+          backgroundColor: "rgba(239, 68, 68, 0.15)",
           borderColor: COLORS.danger,
           color: COLORS.danger,
           icon: "❌",
           message: "Disconnected",
+          glow: false,
         };
     }
   };
@@ -305,91 +359,143 @@ export default function FreelancerDashboard() {
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
+      showsVerticalScrollIndicator={false}
     >
-      {/* Header and Server Status */}
+      {/* Animated Background Gradient Effect */}
+      <View style={styles.backgroundGradient} />
 
-      <TouchableOpacity onPress={() => navigation.goBack()} className="p-2 ml-2">
-        <Text className="text-purple-400 text-2xl font-bold">{"←"}</Text>
+      {/* Back Button */}
+      <TouchableOpacity 
+        onPress={() => navigation.goBack()} 
+        style={styles.backButton}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.backButtonText}>{"←"}</Text>
       </TouchableOpacity>
 
-      <View style={styles.header}>
-        <Text style={styles.title}>Freelancer Dashboard</Text>
+      <Animated.View 
+        style={[
+          styles.header,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}
+      >
+        <Text style={styles.title}>
+          <Text style={styles.titleGradient}>Freelancer</Text> Dashboard
+        </Text>
         <Text style={styles.subtitle}>
           Analyze your CV, boost your profile, and track your rank.
         </Text>
 
-        <View
+        <Animated.View
           style={[
             styles.statusPill,
-            { borderColor: statusStyle.borderColor, backgroundColor: statusStyle.backgroundColor },
+            { 
+              borderColor: statusStyle.borderColor, 
+              backgroundColor: statusStyle.backgroundColor,
+              transform: [{ scale: statusStyle.glow ? pulseAnim : 1 }],
+            },
           ]}
         >
-          <Text style={[styles.statusText, { color: statusStyle.color }]}>
-            {statusStyle.icon} Server: {statusStyle.message}
-          </Text>
+          <View style={styles.statusContent}>
+            <Text style={[styles.statusText, { color: statusStyle.color }]}>
+              {statusStyle.icon} Server: {statusStyle.message}
+            </Text>
+            {statusStyle.glow && (
+              <View style={[styles.statusDot, { backgroundColor: statusStyle.color }]} />
+            )}
+          </View>
           {serverStatus === "disconnected" && (
             <TouchableOpacity onPress={checkServerConnection}>
-              <Text style={styles.retryText}>
-                Retry Connection
-              </Text>
+              <Text style={styles.retryText}>Retry Connection</Text>
             </TouchableOpacity>
           )}
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
 
       {/* Action Buttons */}
-      <View style={styles.actionsContainer}>
-        {/* Upload Button */}
-        <TouchableOpacity
-          onPress={uploadCV}
-          disabled={uploading || serverStatus !== "connected"}
-          style={[
-            styles.button,
-            { backgroundColor: COLORS.primary },
-            (uploading || serverStatus !== "connected") && styles.buttonDisabled,
-          ]}
-        >
-          <Text style={styles.buttonText}>
-            {uploading ? "Uploading CV..." : "⬆️ Upload & Analyze CV"}
-          </Text>
-        </TouchableOpacity>
+      <Animated.View 
+        style={[
+          styles.actionsContainer,
+          {
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}
+      >
+        <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
+          <TouchableOpacity
+            onPress={uploadCV}
+            disabled={uploading || serverStatus !== "connected"}
+            style={[
+              styles.button,
+              styles.primaryButton,
+              (uploading || serverStatus !== "connected") && styles.buttonDisabled,
+            ]}
+            activeOpacity={0.8}
+          >
+            <View style={styles.buttonContent}>
+              <Text style={styles.buttonIcon}>⬆️</Text>
+              <Text style={styles.uploadButtonText}>
+                {uploading ? "Uploading CV..." : "Upload & Analyze CV"}
+              </Text>
+            </View>
+            {!uploading && serverStatus === "connected" && (
+              <View style={styles.buttonShine} />
+            )}
+          </TouchableOpacity>
+        </Animated.View>
 
-        {/* View Analysis Button */}
         <TouchableOpacity
           onPress={viewAnalysis}
           disabled={loading || serverStatus !== "connected"}
           style={[
             styles.button,
-            { backgroundColor: COLORS.secondary },
+            styles.secondaryButton,
             (loading || serverStatus !== "connected") && styles.buttonDisabled,
           ]}
+          activeOpacity={0.8}
         >
-          <Text style={styles.buttonText}>
-            👁️ View Latest Analysis
-          </Text>
+          <View style={styles.buttonContent}>
+            <Text style={styles.buttonIcon}>👁️</Text>
+            <Text style={styles.buttonText}>View Latest Analysis</Text>
+          </View>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
       {/* Progress Loader */}
       {(uploading || loading) && (
-        <View style={styles.loaderContainer}>
+        <Animated.View 
+          style={[
+            styles.loaderContainer,
+            { opacity: fadeAnim },
+          ]}
+        >
           <Progress.CircleSnail
-            color={[COLORS.primary, COLORS.secondary]}
-            size={40}
-            thickness={3}
+            color={[COLORS.primary, COLORS.secondary, COLORS.accent]}
+            size={50}
+            thickness={4}
           />
           <Text style={styles.loaderText}>
             {uploading ? "Analyzing CV content..." : "Loading Data..."}
           </Text>
-        </View>
+        </Animated.View>
       )}
 
       {/* Analysis Section */}
       {skills.length > 0 && (
-        <View style={styles.card}>
+        <Animated.View 
+          style={[
+            styles.card,
+            { opacity: fadeAnim },
+          ]}
+        >
           <Text style={styles.cardTitle}>✨ Your Latest Analysis</Text>
 
           <View style={styles.rankBadgeContainer}>
+            <View style={styles.rankBadgeGlow} />
             <Text style={styles.rankBadgeText}>
               🏆 Freelancer Rank: {rank || "N/A"}
             </Text>
@@ -399,15 +505,21 @@ export default function FreelancerDashboard() {
           <View style={styles.skillsList}>
             {skills.map((skill, index) => (
               <View key={index} style={styles.skillPill}>
+                <View style={styles.skillPillGradient} />
                 <Text style={styles.skillText}>{skill}</Text>
               </View>
             ))}
           </View>
-        </View>
+        </Animated.View>
       )}
 
       {/* Stats Section */}
-      <View style={styles.card}>
+      <Animated.View 
+        style={[
+          styles.card,
+          { opacity: fadeAnim },
+        ]}
+      >
         <Text style={styles.cardTitle}>📊 Platform Statistics</Text>
 
         {loading && !stats ? (
@@ -416,39 +528,46 @@ export default function FreelancerDashboard() {
           <>
             <View style={styles.statRow}>
               <Text style={styles.statLabel}>📁 Total Uploads</Text>
-              <Text style={styles.statValue}>{stats.uploadsCount || 0}</Text>
+              <View style={styles.statValueContainer}>
+                <Text style={styles.statValue}>{stats.uploadsCount || 0}</Text>
+              </View>
             </View>
             <View style={styles.statRow}>
               <Text style={styles.statLabel}>📚 Avg Skills per CV</Text>
-              <Text style={styles.statValue}>
-                {stats.avgSkillCount?.toFixed(1) || "0.0"}
-              </Text>
+              <View style={styles.statValueContainer}>
+                <Text style={styles.statValue}>
+                  {stats.avgSkillCount?.toFixed(1) || "0.0"}
+                </Text>
+              </View>
             </View>
 
             <Text style={styles.subCardTitle}>🏆 Rank Distribution</Text>
-            <View style={styles.statItem}>
-              <Text style={styles.statSubText}>Level 1</Text>
-              <Text style={styles.statSubValue}>{stats.rankDistribution?.level1 || 0}</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statSubText}>Level 2</Text>
-              <Text style={styles.statSubValue}>{stats.rankDistribution?.level2 || 0}</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statSubText}>Top Rated</Text>
-              <Text style={styles.statSubValue}>{stats.rankDistribution?.topRated || 0}</Text>
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
+                <Text style={styles.statCardValue}>{stats.rankDistribution?.level1 || 0}</Text>
+                <Text style={styles.statCardLabel}>Level 1</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statCardValue}>{stats.rankDistribution?.level2 || 0}</Text>
+                <Text style={styles.statCardLabel}>Level 2</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statCardValue}>{stats.rankDistribution?.topRated || 0}</Text>
+                <Text style={styles.statCardLabel}>Top Rated</Text>
+              </View>
             </View>
             
             <Text style={styles.subCardTitle}>🔥 Top Skills</Text>
             {stats.topSkills && stats.topSkills.length > 0 ? (
-              stats.topSkills.slice(0, 3).map((s: any, i: number) => ( // Showing top 3 for cleaner look
-                <View key={i} style={styles.statItem}>
-                  <Text style={styles.statSubText}>
-                    {s.skill}
-                  </Text>
-                  <Text style={styles.statSubValue}>
-                    {s.count} times
-                  </Text>
+              stats.topSkills.slice(0, 3).map((s: any, i: number) => (
+                <View key={i} style={styles.topSkillItem}>
+                  <View style={styles.topSkillRank}>
+                    <Text style={styles.topSkillRankText}>#{i + 1}</Text>
+                  </View>
+                  <Text style={styles.topSkillText}>{s.skill}</Text>
+                  <View style={styles.topSkillBadge}>
+                    <Text style={styles.topSkillCount}>{s.count}</Text>
+                  </View>
                 </View>
               ))
             ) : (
@@ -457,234 +576,390 @@ export default function FreelancerDashboard() {
 
             <Text style={styles.subCardTitle}>🕒 Recent Uploads</Text>
             {stats.recentUploads && stats.recentUploads.length > 0 ? (
-              stats.recentUploads.slice(0, 2).map((u: any, i: number) => ( // Showing top 2
+              stats.recentUploads.slice(0, 2).map((u: any, i: number) => (
                 <View key={i} style={styles.recentUploadItem}>
-                  <Text style={styles.recentUploadName}>
-                    📄 {u.originalName || "Unknown"}
-                  </Text>
-                  <Text style={styles.recentUploadDetails}>
-                    Rank: {u.analysis?.rank || "N/A"} • Skills: {u.analysis?.skills?.length || 0}
-                  </Text>
+                  <View style={styles.recentUploadIndicator} />
+                  <View style={styles.recentUploadContent}>
+                    <Text style={styles.recentUploadName}>
+                      📄 {u.originalName || "Unknown"}
+                    </Text>
+                    <Text style={styles.recentUploadDetails}>
+                      Rank: {u.analysis?.rank || "N/A"} • Skills: {u.analysis?.skills?.length || 0}
+                    </Text>
+                  </View>
                 </View>
               ))
             ) : (
-              <Text style={styles.noDataText}>
-                No recent uploads
-              </Text>
+              <Text style={styles.noDataText}>No recent uploads</Text>
             )}
           </>
         ) : (
           <Text style={styles.noDataText}>No platform data available yet.</Text>
         )}
-      </View>
+      </Animated.View>
     </ScrollView>
   );
 }
 
-// --- Stylesheet for the Attractive Theme ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
   },
+  backgroundGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 400,
+    backgroundColor: COLORS.primary,
+    opacity: 0.05,
+  },
   contentContainer: {
     padding: 20,
-    paddingTop: 80, // More space for a modern feel
+    paddingTop: 60,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: COLORS.card,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 20,
+    marginLeft: 5,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  backButtonText: {
+    fontSize: 24,
+    color: COLORS.primary,
+    fontWeight: "bold",
   },
   header: {
-    marginBottom: 25,
+    marginBottom: 30,
   },
   title: {
-    fontSize: 30,
-    fontWeight: "800",
+    fontSize: 36,
+    fontWeight: "900",
     color: COLORS.textPrimary,
-    marginBottom: 5,
+    marginBottom: 8,
+  },
+  titleGradient: {
+    color: COLORS.primary,
   },
   subtitle: {
     fontSize: 16,
     color: COLORS.textSecondary,
-    marginBottom: 15,
+    marginBottom: 20,
+    lineHeight: 22,
   },
   statusPill: {
-    padding: 10,
-    borderRadius: 10,
-    borderWidth: 1,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 2,
+  },
+  statusContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   statusText: {
     fontWeight: "700",
-    fontSize: 14,
+    fontSize: 15,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   retryText: {
     color: COLORS.primary,
-    textDecorationLine: "underline",
-    marginTop: 5,
-    fontSize: 14,
     fontWeight: "600",
+    marginTop: 8,
+    fontSize: 14,
   },
   actionsContainer: {
-    marginBottom: 25,
+    marginBottom: 30,
   },
   button: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 10,
-    alignItems: "center",
-    // Premium shadow for buttons
+    padding: 18,
+    borderRadius: 16,
+    marginBottom: 12,
+    overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  primaryButton: {
+    backgroundColor: COLORS.primary,
+  },
+  secondaryButton: {
+    backgroundColor: COLORS.secondary,
   },
   buttonDisabled: {
-    backgroundColor: "#D1D5DB",
+    backgroundColor: COLORS.border,
     shadowOpacity: 0,
     elevation: 0,
   },
-  buttonText: {
-    color: COLORS.card,
-    fontSize: 18,
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonIcon: {
+    fontSize: 20,
+    marginRight: 10,
+  },
+  uploadButtonText: {
+    color: COLORS.textPrimary2,
+    fontSize: 17,
     fontWeight: "700",
+  }
+  buttonText: {
+    color: COLORS.textPrimary,
+    fontSize: 17,
+    fontWeight: "700",
+  },
+  buttonShine: {
+    position: "absolute",
+    top: 0,
+    left: -100,
+    width: 100,
+    height: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   loaderContainer: {
     alignItems: "center",
-    marginBottom: 25,
-    padding: 15,
-    borderRadius: 12,
+    marginBottom: 30,
+    padding: 24,
+    borderRadius: 16,
     backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   loaderText: {
-    marginTop: 12,
+    marginTop: 16,
     color: COLORS.textSecondary,
     fontWeight: "600",
     fontSize: 16,
   },
   card: {
     backgroundColor: COLORS.card,
-    borderRadius: 15,
-    padding: 20,
+    borderRadius: 20,
+    padding: 24,
     marginBottom: 20,
-    // Soft, noticeable shadow for a "lifted" look
+    borderWidth: 1,
+    borderColor: COLORS.border,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
   },
   cardTitle: {
-    fontSize: 20,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: "800",
     color: COLORS.textPrimary,
-    marginBottom: 15,
+    marginBottom: 20,
+    paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#E5E7EB",
-    paddingBottom: 10,
+    borderBottomColor: COLORS.border,
   },
   subCardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
     color: COLORS.textPrimary,
-    marginTop: 15,
-    marginBottom: 8,
+    marginTop: 20,
+    marginBottom: 12,
   },
   rankBadgeContainer: {
-    backgroundColor: COLORS.rankBadge,
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    marginBottom: 15,
+    position: "relative",
+    backgroundColor: COLORS.accent,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    marginBottom: 20,
     alignSelf: "flex-start",
-    // Subtle shadow for the badge
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    overflow: "hidden",
+  },
+  rankBadgeGlow: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   rankBadgeText: {
     fontWeight: "800",
-    fontSize: 16,
-    color: COLORS.textPrimary,
+    fontSize: 17,
+    color: COLORS.background,
   },
   skillsTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "600",
     color: COLORS.textPrimary,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   skillsList: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginBottom: 10,
   },
   skillPill: {
-    backgroundColor: "#E5E7EB",
-    borderRadius: 15,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    position: "relative",
+    backgroundColor: COLORS.backgroundLight,
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     marginRight: 8,
-    marginBottom: 8,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    overflow: "hidden",
+  },
+  skillPillGradient: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: COLORS.primary,
+    opacity: 0.1,
   },
   skillText: {
     color: COLORS.textPrimary,
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
   },
   statRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 8,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F3F4F6",
+    borderBottomColor: COLORS.border,
   },
   statLabel: {
     fontSize: 16,
     color: COLORS.textSecondary,
     fontWeight: "600",
   },
-  statValue: {
-    fontSize: 16,
-    color: COLORS.primary,
-    fontWeight: "700",
+  statValueContainer: {
+    backgroundColor: COLORS.backgroundLight,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
-  statItem: {
+  statValue: {
+    fontSize: 18,
+    color: COLORS.primary,
+    fontWeight: "800",
+  },
+  statsGrid: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 4,
-    paddingLeft: 10,
+    marginBottom: 10,
   },
-  statSubText: {
-    fontSize: 14,
+  statCard: {
+    flex: 1,
+    backgroundColor: COLORS.backgroundLight,
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 4,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  statCardValue: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: COLORS.primary,
+    marginBottom: 4,
+  },
+  statCardLabel: {
+    fontSize: 12,
     color: COLORS.textSecondary,
+    fontWeight: "600",
   },
-  statSubValue: {
+  topSkillItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: COLORS.backgroundLight,
+    borderRadius: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  topSkillRank: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  topSkillRankText: {
+    color: COLORS.textPrimary,
+    fontWeight: "800",
     fontSize: 14,
+  },
+  topSkillText: {
+    flex: 1,
+    fontSize: 15,
     color: COLORS.textPrimary,
     fontWeight: "600",
   },
+  topSkillBadge: {
+    backgroundColor: COLORS.secondary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  topSkillCount: {
+    color: COLORS.textPrimary,
+    fontSize: 13,
+    fontWeight: "700",
+  },
   recentUploadItem: {
-    paddingVertical: 8,
-    paddingLeft: 10,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.secondary,
-    marginBottom: 8,
+    flexDirection: "row",
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: COLORS.backgroundLight,
+    borderRadius: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  recentUploadIndicator: {
+    width: 4,
+    backgroundColor: COLORS.secondary,
+    borderRadius: 2,
+    marginRight: 12,
+  },
+  recentUploadContent: {
+    flex: 1,
   },
   recentUploadName: {
     fontSize: 15,
     fontWeight: "600",
     color: COLORS.textPrimary,
+    marginBottom: 4,
   },
   recentUploadDetails: {
     color: COLORS.textSecondary,
     fontSize: 13,
-    marginTop: 2,
   },
   noDataText: {
     fontSize: 15,
     color: COLORS.textSecondary,
     fontStyle: "italic",
     textAlign: "center",
-    paddingVertical: 10,
+    paddingVertical: 12,
   },
 });
