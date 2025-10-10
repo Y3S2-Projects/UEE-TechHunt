@@ -717,7 +717,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary2,
     fontSize: 17,
     fontWeight: "700",
-  }
+  },
   buttonText: {
     color: COLORS.textPrimary,
     fontSize: 17,
