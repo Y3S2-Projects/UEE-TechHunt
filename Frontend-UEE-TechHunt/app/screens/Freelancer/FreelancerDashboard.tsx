@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigation } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -38,6 +39,8 @@ export default function FreelancerDashboard() {
   const [skills, setSkills] = useState<string[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [serverStatus, setServerStatus] = useState<string>("checking");
+
+  const navigation = useNavigation();
 
   useEffect(() => {
     checkServerConnection();
@@ -304,6 +307,11 @@ export default function FreelancerDashboard() {
       contentContainerStyle={styles.contentContainer}
     >
       {/* Header and Server Status */}
+
+      <TouchableOpacity onPress={() => navigation.goBack()} className="p-2 ml-2">
+        <Text className="text-purple-400 text-2xl font-bold">{"←"}</Text>
+      </TouchableOpacity>
+
       <View style={styles.header}>
         <Text style={styles.title}>Freelancer Dashboard</Text>
         <Text style={styles.subtitle}>
