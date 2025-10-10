@@ -8,6 +8,10 @@ import CoursesScreen from "../screens/Courses/CoursesScreen";
 import MessagesScreen from "../screens/Messages/MessagesScreen";
 import AddCourseScreen from "../screens/Courses/AddCourseScreen";
 import CourseDetailsScreen from "../screens/Courses/CourseDetailsScreen";
+import JobDetailScreen from "../screens/Marketplace/JobDetailScreen";
+import JobPostScreen from "../screens/Marketplace/JobPostScreen";
+import ChatBotScreen from "../screens/Marketplace/ChatBotScreen";
+import JobListScreen from "../screens/Marketplace/JobListScreen";
 
 // Type definitions for navigation
 export type OnboardingStackParamList = {
@@ -40,6 +44,10 @@ export type OnboardingStackParamList = {
   FreelancerDashboard: undefined;
   Chat: { instructor: string , contact: string, email: string };
   Chat2: { instructor: string , contact: string, email: string };
+  JobList: undefined;
+  JobDetail: undefined;
+  JobPost: undefined;
+  ChatBot: undefined;
 };
 
 const Stack = createStackNavigator<OnboardingStackParamList>();
@@ -72,6 +80,10 @@ export default function OnboardingStack() {
       <Stack.Screen name="FreelancerDashboard" component={require("../screens/Freelancer/FreelancerDashboard").default} />
       <Stack.Screen name="Chat" component={require("../screens/Messages/ChatMiddleScreen").default} />
       <Stack.Screen name="Chat2" component={require("../screens/Messages/ChatScreen").default} />
+      <Stack.Screen name="JobList" component={JobListScreen} />
+      <Stack.Screen name="JobDetail" component={JobDetailScreen} />
+      <Stack.Screen name="JobPost" component={JobPostScreen} />
+      <Stack.Screen name="ChatBot" component={ChatBotScreen} />
     </Stack.Navigator> 
   );
 }
