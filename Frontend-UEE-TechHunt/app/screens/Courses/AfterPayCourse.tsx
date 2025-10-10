@@ -1,18 +1,26 @@
+// app/screens.Courses/AfterPayCourse.tsx
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, Alert, ScrollView, StatusBar } from "react-native";
-import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { OnboardingStackParamList } from "../../navigation/OnboardingStack";
-import { useRouter } from "expo-router";
+import { 
+  View, Text, Image, TouchableOpacity, Alert, ScrollView, StatusBar 
+} from "react-native";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import ConversationalFeedback from "./ConversationalFeedback";
 
-type CourseDetailsRouteProp = RouteProp<OnboardingStackParamList, "CourseDetails">;
-type CourseDetailsNavProp = StackNavigationProp<OnboardingStackParamList, "CourseDetails">;
-
-export default function CourseDetailsScreen() {
-  const route = useRoute<CourseDetailsRouteProp>();
-  const navigation = useNavigation<CourseDetailsNavProp>();
-  const { course } = route.params;
+export default function AfterPayCourse() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+
+  // Parse course data
+  const course = params.courseData 
+    ? JSON.parse(params.courseData as string) 
+    : {
+        title: "Premium Course",
+        description: "Course description",
+        thumbnail: "https://via.placeholder.com/800x400",
+        instructor: "Instructor",
+        contact: "+1234567890",
+        email: "instructor@example.com"
+      };
 
   const [likes, setLikes] = useState(0);
   const [rating, setRating] = useState(0);
@@ -22,47 +30,46 @@ export default function CourseDetailsScreen() {
     setIsLiked(!isLiked);
     setLikes(isLiked ? likes - 1 : likes + 1);
   };
-  
+
   const handleRate = (rate: number) => setRating(rate);
 
-  const handlePayment = () => {
-    // Navigate to checkout with course data
-    router.push({
-      pathname: '/payment/checkout',
-      params: {
-        courseId: course.id || course.title,
-        courseTitle: course.title,
-        courseData: JSON.stringify(course) // Pass entire course object
-      }
-    });
+  const handleFeedbackComplete = async (feedbackRating: number, feedbackText: string) => {
+    try {
+      console.log('Feedback submitted:', { feedbackRating, feedbackText });
+      Alert.alert(
+        "Thank you! 🎉",
+        "Your feedback helps us improve the learning experience.",
+        [{ text: "OK" }]
+      );
+    } catch (error) {
+      console.error('Error saving feedback:', error);
+      Alert.alert("Error", "Could not save feedback. Please try again.");
+    }
   };
 
   return (
     <View className="flex-1 bg-slate-950">
       <StatusBar barStyle="light-content" />
-      
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Hero Section with Parallax Effect */}
+        {/* Hero Section */}
         <View className="relative">
           <Image
             source={{ uri: course.thumbnail }}
             className="w-full h-96"
             resizeMode="cover"
           />
-          
-          {/* Gradient Overlay */}
           <View className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/40 to-slate-950" />
-          
-          {/* Back Button - Floating */}
+
+          {/* Back Button */}
           <TouchableOpacity
-            onPress={() => navigation.goBack()}
+            onPress={() => router.back()} // Safe navigation
             className="absolute top-12 left-5 bg-black/50 backdrop-blur-xl rounded-full w-10 h-10 items-center justify-center"
             style={{ backdropFilter: 'blur(20px)' }}
           >
             <Text className="text-white text-xl font-bold">←</Text>
           </TouchableOpacity>
 
-          {/* Quick Actions - Floating */}
+          {/* Like Button */}
           <View className="absolute top-12 right-5 flex-row gap-2">
             <TouchableOpacity
               onPress={handleLike}
@@ -71,11 +78,18 @@ export default function CourseDetailsScreen() {
               <Text className="text-xl">{isLiked ? "❤️" : "🤍"}</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Enrolled Badge */}
+          <View className="absolute bottom-9 left-6">
+            <View className="bg-emerald-500/90 backdrop-blur-xl px-6 py-2 rounded-full flex-row items-center">
+              <Text className="text-white font-bold mr-2">✓</Text>
+              <Text className="text-white font-bold">Enrolled</Text>
+            </View>
+          </View>
         </View>
 
-        {/* Content Card - Overlapping Design */}
-        <View className="bg-slate-950 -mt-8 rounded-t-3xl px-6 pt-6 pb-32">
-          
+        {/* Content Card */}
+        <View className="bg-slate-950 -mt-8 rounded-t-3xl px-6 pt-6 pb-8">
           {/* Course Badge */}
           <View className="flex-row items-center mb-4">
             <View className="bg-purple-500/20 px-4 py-1.5 rounded-full mr-2">
@@ -84,22 +98,18 @@ export default function CourseDetailsScreen() {
               </Text>
             </View>
             <View className="bg-emerald-500/20 px-4 py-1.5 rounded-full">
-              <Text className="text-emerald-400 text-xs font-semibold">
-                ⭐ 4.8
-              </Text>
+              <Text className="text-emerald-400 text-xs font-semibold">⭐ 4.8</Text>
             </View>
           </View>
 
-          {/* Course Title */}
           <Text className="text-4xl font-black mb-3 text-white leading-tight">
             {course.title}
           </Text>
-          
           <Text className="text-slate-400 text-base mb-6 leading-relaxed">
             {course.description}
           </Text>
 
-          {/* Stats Row */}
+          {/* Stats */}
           <View className="flex-row justify-between mb-6 bg-slate-900/50 rounded-2xl p-4">
             <View className="items-center flex-1">
               <Text className="text-2xl font-bold text-white">{likes}</Text>
@@ -129,15 +139,18 @@ export default function CourseDetailsScreen() {
                 <Text className="text-white font-bold text-lg">{course.instructor}</Text>
                 <Text className="text-slate-400 text-sm">Course Instructor</Text>
               </View>
-              <TouchableOpacity
+              <TouchableOpacity 
                 className="bg-white/10 px-4 py-2 rounded-full"
-                onPress={() =>
-                  navigation.navigate("Chat", {
-                    instructor: course.instructor,
-                    contact: course.contact,
-                    email: course.email,
-                  })
-                }
+                onPress={() => {
+                  router.push({
+                    pathname: '/screens/Messages/ChatMiddleScreen',
+                    params: {
+                      instructor: course.instructor,
+                      contact: course.contact,
+                      email: course.email,
+                    }
+                  });
+                }}
               >
                 <Text className="text-white font-semibold text-sm">Chat</Text>
               </TouchableOpacity>
@@ -150,53 +163,29 @@ export default function CourseDetailsScreen() {
             <Text className="text-white font-bold text-lg mb-3">Rate this course</Text>
             <View className="flex-row items-center bg-slate-900/50 rounded-2xl p-4">
               {[1, 2, 3, 4, 5].map((star) => (
-                <TouchableOpacity 
-                  key={star} 
-                  onPress={() => handleRate(star)}
-                  className="mr-2"
-                >
-                  <Text className="text-3xl">
-                    {star <= rating ? "⭐" : "☆"}
-                  </Text>
+                <TouchableOpacity key={star} onPress={() => handleRate(star)} className="mr-2">
+                  <Text className="text-3xl">{star <= rating ? "⭐" : "☆"}</Text>
                 </TouchableOpacity>
               ))}
-              {rating > 0 && (
-                <Text className="text-slate-400 ml-2 font-semibold">
-                  {rating}.0
-                </Text>
-              )}
+              {rating > 0 && <Text className="text-slate-400 ml-2 font-semibold">{rating}.0</Text>}
             </View>
           </View> */}
 
-          {/* What You'll Learn */}
-          <View className="mb-8">
-            <Text className="text-white font-bold text-xl mb-4">What you'll learn</Text>
-            {[
-              "Master the fundamentals and advanced concepts",
-              "Build real-world projects from scratch",
-              "Get lifetime access to course materials",
-              "Join our exclusive community"
-            ].map((item, index) => (
-              <View key={index} className="flex-row items-center mb-3">
-                <View className="w-6 h-6 rounded-full bg-emerald-500/20 items-center justify-center mr-3">
-                  <Text className="text-emerald-400 text-sm">✓</Text>
-                </View>
-                <Text className="text-slate-300 flex-1">{item}</Text>
-              </View>
-            ))}
+          {/* Conversational Feedback */}
+          <View className="mb-6">
+            <ConversationalFeedback
+              courseTitle={course.title}
+              apiEndpoint="http://localhost:5000/api/feedback/conversational"
+              onFeedbackComplete={handleFeedbackComplete}
+            />
           </View>
+
+          {/* Access Course Materials */}
+          <TouchableOpacity className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl py-4 items-center mb-4">
+            <Text className="text-white font-bold text-lg">Access Course Materials</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
-
-      {/* Fixed Payment Button at Bottom */}
-      <View className="absolute bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 px-6 py-4">
-        <TouchableOpacity
-          onPress={handlePayment}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl py-4 items-center shadow-lg"
-        >
-          <Text className="text-white font-bold text-lg">Enroll Now - $29.99</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 }
