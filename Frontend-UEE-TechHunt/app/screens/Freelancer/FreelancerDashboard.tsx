@@ -15,7 +15,7 @@ import * as FileSystem from "expo-file-system";
 
 // IMPORTANT: Replace with your computer's IP address
 // Find it by running: ipconfig (Windows) or ifconfig (Mac/Linux)
-const API_BASE_URL = "http://192.168.196.23:6000";
+const API_BASE_URL = "http://localhost:6000";
 
 // --- Theme Colors ---
 const COLORS = {
@@ -59,7 +59,7 @@ export default function FreelancerDashboard() {
 
       if (response.ok) {
         setServerStatus("connected");
-        console.log("✅ Server connected");
+        console.log("Server connected");
         fetchStats();
       } else {
         setServerStatus("error");
