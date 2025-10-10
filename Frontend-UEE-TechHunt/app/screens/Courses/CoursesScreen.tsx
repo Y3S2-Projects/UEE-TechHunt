@@ -1,11 +1,16 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Image, FlatList, TextInput, StatusBar, ScrollView, Alert } from "react-native";
+import React, { useState, useEffect } from "react"; // 👈 Import useEffect
+import { View, Text, TouchableOpacity, Image, FlatList, TextInput, StatusBar, ScrollView, Alert, ActivityIndicator } from "react-native"; // 👈 Import Alert & ActivityIndicator
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
-// ⚠️ Note: The type definitions for navigation params must be updated to include the addCourse function.
+// ⚠️ IMPORTANT: Replace with your computer's local IP address.
+// On Windows, open cmd and type `ipconfig`. Find your IPv4 address.
+// On Mac, go to System Settings > Wi-Fi > Details...
+const API_URL = "http://localhost:6000/api/courses";
+
+// Type definition for a single course object
 type Course = {
-  id: string;
+  _id: string; // 👈 Corrected: MongoDB uses _id
   title: string;
   description: string;
   thumbnail: string;
@@ -17,64 +22,92 @@ type Course = {
   level: string;
 };
 
+// Type definitions for React Navigation
 type RootStackParamList = {
-  // Updated type to pass the function
   AddCourse: { addCourse: (newCourse: Course) => void }; 
   CourseDetails: { course: Course };
 };
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "AddCourse">;
 
-export default function CoursesScreen() {
+const CoursesScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
-  // ⚠️ Initial state with a consistent structure including rating and students
-  const [courses, setCourses] = useState<Course[]>([ 
-    {
-      id: "1",
-      title: "Web Development Fundamentals",
-      description: "Learn HTML, CSS, and JavaScript to build modern websites.",
-      thumbnail: "https://img.freepik.com/free-vector/web-development-concept_23-2148829706.jpg",
-      instructor: "John Doe",
-      contact: "0786378102",
-      email: "john.doe@example.com",
-      students: "12.5k",
-      rating: 4.8, // Added rating
-      level: "Beginner"
-    },
-    {
-      id: "2",
-      title: "UI/UX Design Masterclass",
-      description: "Master Figma and design user-friendly, aesthetic interfaces.",
-      thumbnail: "https://img.freepik.com/free-vector/user-experience-concept-illustration_114360-1098.jpg",
-      instructor: "Jane Smith",
-      contact: "0786378103",
-      email: "jane.smith@example.com",
-      students: "8.2k",
-      rating: 4.9, // Added rating
-      level: "Intermediate"
-    },
-  ]);
+
+  // States for data, loading, and error handling
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All");
 
   const filters = ["All", "Beginner", "Intermediate", "Advanced"];
 
-  // 1. Function to add a new course
+  // 👇 This hook fetches data from your backend when the screen loads
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const response = await fetch(API_URL);
+        
+        if (!response.ok) {
+          throw new Error(`Network response was not ok. Status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+
+        if (result.success) {
+          setCourses(result.data); // Populate state with data from the API
+        } else {
+          throw new Error(result.error || 'Failed to fetch courses');
+        }
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+        setError(errorMessage);
+        Alert.alert("Loading Error", `Could not load courses. Please check your network and that the API server is running at ${API_URL}`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []); // The empty array [] means this effect runs once when the component mounts
+
   const addCourse = (newCourse: Course) => {
-    setCourses((prevCourses) => [newCourse, ...prevCourses]); // Add new course to the top
+    setCourses((prevCourses) => [newCourse, ...prevCourses]);
   };
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
   };
 
-  // ⚠️ Filter courses by search query AND selected level
   const filteredCourses = courses.filter((course) => {
     const searchMatch = course.title.toLowerCase().includes(searchQuery.toLowerCase());
     const levelMatch = selectedFilter === "All" || course.level === selectedFilter;
     return searchMatch && levelMatch;
   });
+
+  // Display a loading screen while fetching
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-slate-950">
+        <ActivityIndicator size="large" color="#a855f7" />
+        <Text className="text-slate-400 mt-4 text-lg">Loading Courses...</Text>
+      </View>
+    );
+  }
+
+  // Display an error screen if fetching fails
+  if (error) {
+    return (
+      <View className="flex-1 items-center justify-center bg-slate-950 p-5">
+        <Text className="text-red-400 text-xl font-bold mb-2">Failed to Load Courses</Text>
+        <Text className="text-slate-500 mt-2 text-center">Please check your server connection and IP address in the code.</Text>
+      </View>
+    );
+  }
 
   const renderCourse = ({ item }: { item: Course }) => (
     <TouchableOpacity
@@ -87,7 +120,7 @@ export default function CoursesScreen() {
         shadowRadius: 12,
       }}
     >
-      {/* Course Image with Overlay */}
+      {/* ... (rest of your JSX for rendering a course is unchanged) ... */}
       <View className="relative">
         <Image
           source={{ uri: item.thumbnail }}
@@ -95,23 +128,16 @@ export default function CoursesScreen() {
           resizeMode="cover"
         />
         <View className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/80" />
-        
-        {/* Level Badge */}
         <View className="absolute top-3 left-3 bg-purple-500/90 backdrop-blur-xl px-3 py-1.5 rounded-full">
           <Text className="text-white text-xs font-bold">{item.level}</Text>
         </View>
-
-        {/* Rating Badge */}
         <View className="absolute top-3 right-3 bg-white/20 backdrop-blur-xl px-3 py-1.5 rounded-full flex-row items-center">
           <Text className="text-yellow-400 text-xs mr-1">⭐</Text>
-          {/* Ensure rating is displayed */}
           <Text className="text-white text-xs font-bold">
             {item.rating > 0 ? item.rating.toFixed(1) : 'N/A'}
           </Text>
         </View>
       </View>
-
-      {/* Course Content */}
       <View className="p-4">
         <Text className="text-xl font-black text-white mb-2 leading-tight">
           {item.title}
@@ -119,8 +145,6 @@ export default function CoursesScreen() {
         <Text className="text-slate-400 text-sm mb-4 leading-relaxed">
           {item.description}
         </Text>
-
-        {/* Instructor & Stats Row */}
         <View className="flex-row items-center justify-between pt-3 border-t border-slate-800">
           <View className="flex-row items-center flex-1">
             <View className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 items-center justify-center mr-2">
@@ -130,11 +154,9 @@ export default function CoursesScreen() {
             </View>
             <View className="flex-1">
               <Text className="text-white text-xs font-semibold">{item.instructor}</Text>
-              {/* Ensure students is displayed */}
               <Text className="text-slate-500 text-xs">{item.students} students</Text>
             </View>
           </View>
-          
           <View className="bg-purple-500/20 px-3 py-1.5 rounded-full">
             <Text className="text-purple-400 text-xs font-bold">View →</Text>
           </View>
@@ -144,12 +166,10 @@ export default function CoursesScreen() {
   );
 
   return (
-    <View className="flex-1 bg-3A7D99-950">
+    <View className="flex-1 bg-slate-950">
       <StatusBar barStyle="light-content" />
-      
-      {/* Header Section */}
+      {/* ... (rest of your main return JSX is unchanged) ... */}
       <View className="px-6 pt-12 pb-6">
-        {/* Top Bar */}
         <View className="flex-row items-center justify-between mb-6">
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -157,23 +177,14 @@ export default function CoursesScreen() {
           >
             <Text className="text-white text-lg font-bold">←</Text>
           </TouchableOpacity>
-
           <View className="bg-slate-900 px-4 py-2 rounded-full border border-slate-800">
             <Text className="text-slate-400 text-sm">
               {filteredCourses.length} Courses
             </Text>
           </View>
         </View>
-
-        {/* Title */}
-        <Text className="text-4xl font-black text-white mb-2">
-          Explore
-        </Text>
-        <Text className="text-xl text-purple-400 font-semibold mb-6">
-          Popular Courses
-        </Text>
-
-        {/* Search Bar */}
+        <Text className="text-4xl font-black text-white mb-2">Explore</Text>
+        <Text className="text-xl text-purple-400 font-semibold mb-6">Popular Courses</Text>
         <View className="bg-slate-900 rounded-2xl px-5 py-4 mb-4 flex-row items-center border border-slate-800">
           <Text className="text-xl mr-3">🔍</Text>
           <TextInput 
@@ -191,13 +202,7 @@ export default function CoursesScreen() {
             </TouchableOpacity>
           )}
         </View>
-
-        {/* Filter Pills */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          className="mb-2"
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-2">
           {filters.map((filter) => (
             <TouchableOpacity
               key={filter}
@@ -217,26 +222,21 @@ export default function CoursesScreen() {
           ))}
         </ScrollView>
       </View>
-      
-      {/* Course List */}
       <FlatList
         data={filteredCourses}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id} // 👈 Corrected: Use _id for the key
         renderItem={renderCourse}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 100 }}
         ListEmptyComponent={() => (
           <View className="flex-1 items-center justify-center mt-10">
-            <Text className="text-slate-500 text-lg">No courses found matching your criteria.</Text>
-            <Text className="text-slate-600 text-sm mt-2">Try adding a new one! 👆</Text>
+            <Text className="text-slate-500 text-lg">No courses found.</Text>
+            <Text className="text-slate-600 text-sm mt-2">Try adding a new one! 👇</Text>
           </View>
         )}
       />
-
-      {/* Floating Add Button */}
       <View className="absolute bottom-6 left-6 right-6">
         <TouchableOpacity
-          // 2. Pass the addCourse function as a route parameter
           onPress={() => navigation.navigate("AddCourse", { addCourse })}
           className="bg-purple-600 rounded-2xl py-4 flex-row items-center justify-center shadow-lg"
           style={{
@@ -252,7 +252,9 @@ export default function CoursesScreen() {
       </View>
     </View>
   );
-}
+};
+
+export default CoursesScreen;
 
 // import React, { useState } from "react";
 // import { View, Text, TouchableOpacity, Image, FlatList, TextInput } from "react-native";
