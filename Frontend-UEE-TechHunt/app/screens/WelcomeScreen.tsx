@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { useRouter } from "expo-router";
 import { OnboardingStackParamList } from "../navigation/OnboardingStack";
 
 type WelcomeScreenNavProp = StackNavigationProp<
@@ -13,6 +14,8 @@ type Props = {
 };
 
 export default function WelcomeScreen({ navigation }: Props) {
+  const router = useRouter();
+
   return (
     <View style={{ flex: 1, backgroundColor: '#0A1F2F' }}>
       <View className="flex-1 justify-center items-center px-6">
@@ -91,11 +94,27 @@ export default function WelcomeScreen({ navigation }: Props) {
             <Text className="text-purple-700 font-bold text-lg text-center">Freelancer Dashboard</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          {/* <TouchableOpacity 
           className="bg-white rounded-2xl py-4 px-8 mt-5"
           onPress={() => navigation.navigate("Messages")}
           >
             <Text className="text-purple-700 font-bold text-lg text-center">Messages Section</Text>
+          </TouchableOpacity> */}
+          
+          {/* TEST PAYMENT BUTTON - TEMPORARY */}
+          <TouchableOpacity
+            className="mt-4 py-4 px-8 bg-green-500 rounded-2xl"
+            onPress={() => {
+              try {
+                router.push('/payment/checkout');
+              } catch (error) {
+                console.log('Navigation error:', error);
+              }
+            }}
+          >
+            <Text className="text-white font-bold text-lg text-center">
+              💳 Test Payment Gateway
+            </Text>
           </TouchableOpacity>
           
           {/* Secondary Action */}
