@@ -1,15 +1,7 @@
-import { Text, View } from "react-native";
+import React from "react";
+import "../global.css";
+import AppNavigator from "./navigation/AppNavigator";
 
-export default function Index() {
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>welcome</Text>
-    </View>
-  );
+export default function App() {
+  return <AppNavigator />
 }
