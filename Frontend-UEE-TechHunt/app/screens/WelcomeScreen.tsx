@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useRouter } from "expo-router";
 import { OnboardingStackParamList } from "../navigation/OnboardingStack";
-
+import { MarketplaceParamList } from "../navigation/MarketplaceStack";
 type WelcomeScreenNavProp = StackNavigationProp<
   OnboardingStackParamList,
   "Welcome"
@@ -92,6 +92,13 @@ export default function WelcomeScreen({ navigation }: Props) {
           onPress={() => navigation.navigate("FreelancerDashboard")}
           >
             <Text className="text-purple-700 font-bold text-lg text-center">Freelancer Dashboard</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+          className="bg-white rounded-2xl py-4 px-8 mt-5"
+          onPress={() => navigation.navigate("JobList")} // Navigate to MarketplaceStack's JobList screen
+          >
+            <Text className="text-purple-700 font-bold text-lg text-center">Micro Job MarketPlace</Text>
           </TouchableOpacity>
 
           {/* <TouchableOpacity 
