@@ -35,7 +35,7 @@ export default function ProfileDashboard({ navigation, route }: Props) {
   const quickActions = [
     { icon: '📖', title: 'Courses Section', screen: 'Courses' as const, color: '#00FFC2' },
     { icon: '💼', title: 'Job Market', screen: 'JobList' as const, color: '#3A7D99' },
-    { icon: '💬', title: 'Messages', screen: 'Messages' as const, color: '#00FFAB' },
+    { icon: '⭐', title: 'Freelancer', screen: 'FreelancerDashboard' as const, color: '#00FFAB' },
     { icon: '🤖', title: 'Skillbot', screen: 'ChatBot' as const, color: '#FF6B6B' },
   ];
 

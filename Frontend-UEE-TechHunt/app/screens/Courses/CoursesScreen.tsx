@@ -6,7 +6,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 // ⚠️ IMPORTANT: Replace with your computer's local IP address.
 // On Windows, open cmd and type `ipconfig`. Find your IPv4 address.
 // On Mac, go to System Settings > Wi-Fi > Details...
-const API_URL = "http://localhost:6000/api/courses";
+const API_URL = "http://192.168.8.141:6000/api/courses";
 
 // Type definition for a single course object
 type Course = {

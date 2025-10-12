@@ -175,7 +175,7 @@ export default function AfterPayCourse() {
           <View className="mb-6">
             <ConversationalFeedback
               courseTitle={course.title}
-              apiEndpoint="http://localhost:5000/api/feedback/conversational"
+              apiEndpoint="http://192.168.8.141:5000/api/feedback/conversational"
               onFeedbackComplete={handleFeedbackComplete}
             />
           </View>
