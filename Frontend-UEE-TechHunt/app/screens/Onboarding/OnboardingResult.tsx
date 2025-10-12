@@ -36,8 +36,8 @@ export default function OnboardingResult({ navigation, route }: Props) {
   const estimatedTime = result?.estimatedCompletionTime || "3-6 months";
 
   const handleStartLearning = () => {
-    // Navigate to main app or profile setup
-    navigation.navigate("ProfileSetup");
+    // Navigate to Signup screen instead of ProfileSetup
+    navigation.navigate("Signup");
   };
 
   const renderPhaseCard = (
@@ -262,7 +262,7 @@ export default function OnboardingResult({ navigation, route }: Props) {
         </View>
       </ScrollView>
 
-      {/* Fixed Bottom Button */}
+      {/* Fixed Bottom Button - Now navigates to Signup */}
       <View style={{  }} className="absolute bottom-0 left-0 right-0 px-6 py-3 mb-12">
         <TouchableOpacity
           onPress={handleStartLearning}
