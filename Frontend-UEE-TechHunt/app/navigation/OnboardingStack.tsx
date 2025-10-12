@@ -12,6 +12,10 @@ import JobDetailScreen from "../screens/Marketplace/JobDetailScreen";
 import JobPostScreen from "../screens/Marketplace/JobPostScreen";
 import ChatBotScreen from "../screens/Marketplace/ChatBotScreen";
 import JobListScreen from "../screens/Marketplace/JobListScreen";
+import Signup from "../screens/Auth/Signup";
+import Login from "../screens/Auth/Login";
+import ProfileDashboard from "../screens/Dashboard/ProfileDashboard";
+import AccountScreen from "../screens/Account/AccountScreen";
 
 // Type definitions for navigation
 export type OnboardingStackParamList = {
@@ -34,6 +38,20 @@ export type OnboardingStackParamList = {
       experienceLevel: string;
       skills: string[];
       goals: string;
+    };
+  };
+  Signup: undefined;
+  Login: undefined;
+  ProfileDashboard: {
+    user?: {
+      name: string;
+      email: string;
+    };
+  };
+  Account: {
+    user?: {
+      name: string;
+      email: string;
     };
   };
   ProfileSetup: undefined;
@@ -72,6 +90,27 @@ export default function OnboardingStack() {
           gestureEnabled: false, // Prevent going back after completing quiz
         }}
       />
+
+      <Stack.Screen
+        name="Signup"
+        component={Signup}
+        options={{
+          gestureEnabled: false, // Prevent going back during signup
+        }}
+      />
+      <Stack.Screen name="Login" component={Login} />
+
+      {/* Main Dashboard */}
+      <Stack.Screen
+        name="ProfileDashboard"
+        component={ProfileDashboard}
+        options={{
+          gestureEnabled: false, // Prevent going back after login
+        }}
+      />
+
+      <Stack.Screen name="Account" component={AccountScreen} />
+      
       <Stack.Screen name="ProfileSetup" component={ProfileSetup} />
       <Stack.Screen name="Courses" component={CoursesScreen} />
       <Stack.Screen name="Messages" component={MessagesScreen} />

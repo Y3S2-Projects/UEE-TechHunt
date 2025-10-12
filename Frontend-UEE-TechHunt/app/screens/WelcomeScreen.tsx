@@ -4,6 +4,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { useRouter } from "expo-router";
 import { OnboardingStackParamList } from "../navigation/OnboardingStack";
 import { MarketplaceParamList } from "../navigation/MarketplaceStack";
+
 type WelcomeScreenNavProp = StackNavigationProp<
   OnboardingStackParamList,
   "Welcome"
@@ -80,61 +81,16 @@ export default function WelcomeScreen({ navigation }: Props) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-          className="bg-white rounded-2xl py-4 px-8 mt-5"
-          onPress={() => navigation.navigate("Courses")}
-          >
-            <Text className="text-purple-700 font-bold text-lg text-center">Courses Section</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-          className="bg-gray-400 rounded-2xl py-4 px-8 mt-5"
-          onPress={() => navigation.navigate("FreelancerDashboard")}
-          >
-            <Text className="text-purple-700 font-bold text-lg text-center">Freelancer Dashboard</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-          className="bg-white rounded-2xl py-4 px-8 mt-5"
-          onPress={() => navigation.navigate("JobList")} // Navigate to MarketplaceStack's JobList screen
-          >
-            <Text className="text-purple-700 font-bold text-lg text-center">Micro Job MarketPlace</Text>
-          </TouchableOpacity>
-
-          {/* <TouchableOpacity 
-          className="bg-white rounded-2xl py-4 px-8 mt-5"
-          onPress={() => navigation.navigate("Messages")}
-          >
-            <Text className="text-purple-700 font-bold text-lg text-center">Messages Section</Text>
-          </TouchableOpacity> */}
           
-          {/* TEST PAYMENT BUTTON - TEMPORARY */}
-          <TouchableOpacity
-            className="mt-4 py-4 px-8 bg-green-500 rounded-2xl"
-            onPress={() => {
-              try {
-                router.push('/payment/checkout');
-              } catch (error) {
-                console.log('Navigation error:', error);
-              }
-            }}
-          >
-            <Text className="text-white font-bold text-lg text-center">
-              💳 Test Payment Gateway
-            </Text>
-          </TouchableOpacity>
           
-          {/* Secondary Action */}
+          {/* Already Have Account - Navigate to Login */}
           <TouchableOpacity
             style={{ borderColor: '#3A7D99', borderWidth: 2 }}
             className="mt-4 py-3 px-6 rounded-xl"
-            onPress={() => {
-              // Add navigation to login or skip if needed
-              console.log("Secondary action");
-            }}
+            onPress={() => navigation.navigate("Login")}
           >
             <Text style={{ color: '#E5E5E5', opacity: 0.9 }} className="font-medium text-center">
-              Already have an account?
+              Already have an account? Login
             </Text>
           </TouchableOpacity>
         </View>
