@@ -102,7 +102,7 @@ export default function WelcomeScreen({ navigation }: Props) {
           </TouchableOpacity> */}
           
           {/* TEST PAYMENT BUTTON - TEMPORARY */}
-          <TouchableOpacity
+          {/* <TouchableOpacity
             className="mt-4 py-4 px-8 bg-green-500 rounded-2xl"
             onPress={() => {
               try {
@@ -115,7 +115,7 @@ export default function WelcomeScreen({ navigation }: Props) {
             <Text className="text-white font-bold text-lg text-center">
               💳 Test Payment Gateway
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           
           {/* Secondary Action */}
           <TouchableOpacity
