@@ -26,7 +26,7 @@ export default function ChatMiddleScreen() {
       <Text className="text-3xl font-black text-white mb-2">
         Start a Chat
       </Text>
-      <Text className="text-xl text-purple-400 font-bold mb-10 text-center">
+      <Text className="text-xl text-green-400 font-bold mb-10 text-center">
         Connect with {instructor}
       </Text>
 
@@ -34,9 +34,9 @@ export default function ChatMiddleScreen() {
       <TouchableOpacity
         // Ensure you pass all required params to Chat2
         onPress={() => navigation.navigate("Chat2", { instructor, contact, email })}
-        className="bg-purple-600 w-full py-4 rounded-xl mb-4"
+        className="bg-green-600 w-full py-4 rounded-xl mb-4"
         style={{
-            shadowColor: '#a855f7',
+            shadowColor: '#green-600',
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.5,
             shadowRadius: 10,

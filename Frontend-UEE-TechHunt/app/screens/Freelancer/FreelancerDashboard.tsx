@@ -16,7 +16,7 @@ import * as Progress from "react-native-progress";
 import * as FileSystem from "expo-file-system";
 
 // IMPORTANT: Replace with your computer's IP address
-const API_BASE_URL = "http://localhost:6000";
+const API_BASE_URL = "http://192.168.8.141:5000";
 
 // --- Dark Theme Colors ---
 const COLORS = {

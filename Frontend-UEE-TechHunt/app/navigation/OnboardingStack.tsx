@@ -8,6 +8,14 @@ import CoursesScreen from "../screens/Courses/CoursesScreen";
 import MessagesScreen from "../screens/Messages/MessagesScreen";
 import AddCourseScreen from "../screens/Courses/AddCourseScreen";
 import CourseDetailsScreen from "../screens/Courses/CourseDetailsScreen";
+import JobDetailScreen from "../screens/Marketplace/JobDetailScreen";
+import JobPostScreen from "../screens/Marketplace/JobPostScreen";
+import ChatBotScreen from "../screens/Marketplace/ChatBotScreen";
+import JobListScreen from "../screens/Marketplace/JobListScreen";
+import Signup from "../screens/Auth/Signup";
+import Login from "../screens/Auth/Login";
+import ProfileDashboard from "../screens/Dashboard/ProfileDashboard";
+import AccountScreen from "../screens/Account/AccountScreen";
 
 // Type definitions for navigation
 export type OnboardingStackParamList = {
@@ -32,6 +40,20 @@ export type OnboardingStackParamList = {
       goals: string;
     };
   };
+  Signup: undefined;
+  Login: undefined;
+  ProfileDashboard: {
+    user?: {
+      name: string;
+      email: string;
+    };
+  };
+  Account: {
+    user?: {
+      name: string;
+      email: string;
+    };
+  };
   ProfileSetup: undefined;
   Messages: undefined;
   Courses: undefined;
@@ -40,6 +62,10 @@ export type OnboardingStackParamList = {
   FreelancerDashboard: undefined;
   Chat: { instructor: string , contact: string, email: string };
   Chat2: { instructor: string , contact: string, email: string };
+  JobList: undefined;
+  JobDetail: undefined;
+  JobPost: undefined;
+  ChatBot: undefined;
 };
 
 const Stack = createStackNavigator<OnboardingStackParamList>();
@@ -64,6 +90,27 @@ export default function OnboardingStack() {
           gestureEnabled: false, // Prevent going back after completing quiz
         }}
       />
+
+      <Stack.Screen
+        name="Signup"
+        component={Signup}
+        options={{
+          gestureEnabled: false, // Prevent going back during signup
+        }}
+      />
+      <Stack.Screen name="Login" component={Login} />
+
+      {/* Main Dashboard */}
+      <Stack.Screen
+        name="ProfileDashboard"
+        component={ProfileDashboard}
+        options={{
+          gestureEnabled: false, // Prevent going back after login
+        }}
+      />
+
+      <Stack.Screen name="Account" component={AccountScreen} />
+      
       <Stack.Screen name="ProfileSetup" component={ProfileSetup} />
       <Stack.Screen name="Courses" component={CoursesScreen} />
       <Stack.Screen name="Messages" component={MessagesScreen} />
@@ -72,6 +119,10 @@ export default function OnboardingStack() {
       <Stack.Screen name="FreelancerDashboard" component={require("../screens/Freelancer/FreelancerDashboard").default} />
       <Stack.Screen name="Chat" component={require("../screens/Messages/ChatMiddleScreen").default} />
       <Stack.Screen name="Chat2" component={require("../screens/Messages/ChatScreen").default} />
+      <Stack.Screen name="JobList" component={JobListScreen} />
+      <Stack.Screen name="JobDetail" component={JobDetailScreen} />
+      <Stack.Screen name="JobPost" component={JobPostScreen} />
+      <Stack.Screen name="ChatBot" component={ChatBotScreen} />
     </Stack.Navigator> 
   );
 }
