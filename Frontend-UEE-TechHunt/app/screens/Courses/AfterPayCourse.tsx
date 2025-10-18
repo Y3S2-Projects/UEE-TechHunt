@@ -61,13 +61,14 @@ export default function AfterPayCourse() {
           <View className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/40 to-slate-950" />
 
           {/* Back Button */}
-          <TouchableOpacity
-            onPress={() => router.back()} // Safe navigation
-            className="absolute top-12 left-5 bg-black/50 backdrop-blur-xl rounded-full w-10 h-10 items-center justify-center"
-            style={{ backdropFilter: 'blur(20px)' }}
-          >
-            <Text className="text-white text-xl font-bold">←</Text>
-          </TouchableOpacity>
+<TouchableOpacity
+  onPress={() => router.replace("/screens/Courses/CoursesScreen")}
+  className="absolute top-12 left-5 bg-black/50 backdrop-blur-xl rounded-full w-10 h-10 items-center justify-center"
+  style={{ backdropFilter: 'blur(20px)' }}
+>
+  <Text className="text-white text-xl font-bold">←</Text>
+</TouchableOpacity>
+
 
           {/* Like Button */}
           <View className="absolute top-12 right-5 flex-row gap-2">
@@ -181,9 +182,9 @@ export default function AfterPayCourse() {
           </View>
 
           {/* Access Course Materials */}
-          <TouchableOpacity className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl py-4 items-center mb-4">
+          {/* <TouchableOpacity className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl py-4 items-center mb-4">
             <Text className="text-white font-bold text-lg">Access Course Materials</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </ScrollView>
     </View>
