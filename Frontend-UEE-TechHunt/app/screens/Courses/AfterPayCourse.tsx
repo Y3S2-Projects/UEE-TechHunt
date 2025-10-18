@@ -62,7 +62,7 @@ export default function AfterPayCourse() {
 
           {/* Back Button */}
 <TouchableOpacity
-  onPress={() => router.replace("/screens/WelcomeScreen")}
+  onPress={() => router.replace("/screens/Courses/CoursesScreen")}
   className="absolute top-12 left-5 bg-black/50 backdrop-blur-xl rounded-full w-10 h-10 items-center justify-center"
   style={{ backdropFilter: 'blur(20px)' }}
 >
