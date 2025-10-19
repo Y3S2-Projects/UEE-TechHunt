@@ -13,10 +13,13 @@ import {
   Text,
   Alert,
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "../../theme";
 import { sendMessageToBot, getFallbackResponse } from "../../services/chatbotService";
+
+const { width } = Dimensions.get("window");
 
 interface Message {
   id: string;
@@ -73,15 +76,12 @@ export default function ChatBotScreen() {
     setIsTyping(true);
 
     try {
-      // Send message to n8n chatbot
       const response = await sendMessageToBot(messageToSend, sessionId);
 
-      // Update session ID if provided
       if (response.sessionId) {
         setSessionId(response.sessionId);
       }
 
-      // Simulate typing delay for better UX
       await new Promise((resolve) => setTimeout(resolve, 500));
 
       const botMessage: Message = {
@@ -96,7 +96,6 @@ export default function ChatBotScreen() {
     } catch (error: any) {
       console.error("Error getting bot response:", error);
 
-      // Check if it's a connection error
       const isConnectionError = error.message?.includes('connect') || 
                                 error.message?.includes('network') ||
                                 error.message?.includes('fetch');
@@ -105,7 +104,6 @@ export default function ChatBotScreen() {
         setIsOnline(false);
       }
 
-      // Use fallback response
       const fallbackReply = getFallbackResponse(messageToSend);
 
       const botMessage: Message = {
@@ -126,24 +124,10 @@ export default function ChatBotScreen() {
 
   const handleQuickAction = useCallback((message: string) => {
     setInputText(message);
-    // Auto-send after setting text
     setTimeout(() => {
       onSend();
     }, 100);
   }, [onSend]);
-
-  const handleRetry = useCallback(() => {
-    if (messages.length > 0) {
-      const lastUserMessage = [...messages]
-        .reverse()
-        .find((msg) => !msg.isBot);
-      
-      if (lastUserMessage) {
-        setInputText(lastUserMessage.text);
-        setTimeout(() => onSend(), 100);
-      }
-    }
-  }, [messages, onSend]);
 
   const handleClearChat = useCallback(() => {
     Alert.alert(
@@ -178,44 +162,63 @@ export default function ChatBotScreen() {
     >
       <StatusBar barStyle="light-content" backgroundColor={Colors.ACCENT} />
 
-      {/* Header */}
+      {/* Enhanced Header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <View style={styles.botIndicator}>
-            <View
-              style={[
-                styles.botIndicatorInner,
-                !isOnline && styles.botIndicatorOffline,
-              ]}
+        <View style={styles.headerContent}>
+          <View style={styles.headerLeft}>
+            <View style={styles.botIndicatorWrapper}>
+              <View style={styles.botIndicator}>
+                <Ionicons
+                  name="sparkles"
+                  size={20}
+                  color={Colors.PRIMARY}
+                />
+              </View>
+              <View
+                style={[
+                  styles.statusDot,
+                  !isOnline && styles.statusDotOffline,
+                ]}
+              />
+            </View>
+            <View>
+              <Text style={styles.headerTitle}>SkillBot AI</Text>
+              <View style={styles.statusRow}>
+                <View style={[
+                  styles.statusIndicator,
+                  !isOnline && styles.statusIndicatorOffline
+                ]} />
+                <Text style={styles.headerSubtitle}>
+                  {isTyping
+                    ? "Thinking..."
+                    : isOnline
+                    ? "Online"
+                    : "Offline Mode"}
+                </Text>
+              </View>
+            </View>
+          </View>
+          <TouchableOpacity style={styles.clearBtn} onPress={handleClearChat}>
+            <Ionicons
+              name="trash-outline"
+              size={20}
+              color={Colors.MUTED}
             />
-          </View>
-          <View>
-            <Text style={styles.headerTitle}>SkillBot AI</Text>
-            <Text style={styles.headerSubtitle}>
-              {isTyping
-                ? "Typing..."
-                : isOnline
-                ? "Online • Ready to help"
-                : "Offline • Using local knowledge"}
-            </Text>
-          </View>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.infoBtn} onPress={handleClearChat}>
-          <Ionicons
-            name="trash-outline"
-            size={20}
-            color={Colors.PRIMARY}
-          />
-        </TouchableOpacity>
       </View>
 
       {/* Connection Status Banner */}
       {!isOnline && (
         <View style={styles.offlineBanner}>
-          <Ionicons name="cloud-offline-outline" size={16} color="#FFB800" />
-          <Text style={styles.offlineBannerText}>
-            Limited offline mode - some features unavailable
-          </Text>
+          <View style={styles.offlineBannerContent}>
+            <View style={styles.offlineBannerIcon}>
+              <Ionicons name="cloud-offline" size={14} color="#FFB800" />
+            </View>
+            <Text style={styles.offlineBannerText}>
+              Limited offline mode - some features unavailable
+            </Text>
+          </View>
         </View>
       )}
 
@@ -234,60 +237,78 @@ export default function ChatBotScreen() {
         <View style={styles.spacer} />
       </ScrollView>
 
-      {/* Quick Actions */}
-      <View style={styles.quickActions}>
-        <QuickActionButton
-          icon="briefcase-outline"
-          text="Apply"
-          color="#00D4FF"
-          onPress={() => handleQuickAction("How do I apply for jobs?")}
-        />
-        <QuickActionButton
-          icon="cash-outline"
-          text="Payments"
-          color="#FFB800"
-          onPress={() => handleQuickAction("How do payments work?")}
-        />
-        <QuickActionButton
-          icon="pricetag-outline"
-          text="Bidding"
-          color="#9D6CFF"
-          onPress={() => handleQuickAction("How to submit a bid?")}
-        />
+      {/* Enhanced Quick Actions */}
+      <View style={styles.quickActionsWrapper}>
+        <View style={styles.quickActionsHeader}>
+          <Text style={styles.quickActionsTitle}>Quick Actions</Text>
+          <View style={styles.quickActionsDivider} />
+        </View>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.quickActionsContainer}
+        >
+          <QuickActionButton
+            icon="briefcase-outline"
+            text="Job Applications"
+            color="#00D4FF"
+            onPress={() => handleQuickAction("How do I apply for jobs?")}
+          />
+          <QuickActionButton
+            icon="cash-outline"
+            text="Payments"
+            color="#FFB800"
+            onPress={() => handleQuickAction("How do payments work?")}
+          />
+          <QuickActionButton
+            icon="pricetag-outline"
+            text="Bidding"
+            color="#9D6CFF"
+            onPress={() => handleQuickAction("How to submit a bid?")}
+          />
+          <QuickActionButton
+            icon="help-circle-outline"
+            text="Support"
+            color={Colors.PRIMARY}
+            onPress={() => handleQuickAction("I need help with the platform")}
+          />
+        </ScrollView>
       </View>
 
-      {/* Input Area */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          ref={inputRef}
-          style={styles.input}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Ask SkillBot anything..."
-          placeholderTextColor={Colors.MUTED}
-          multiline
-          maxLength={500}
-          onSubmitEditing={onSend}
-          editable={!isTyping}
-        />
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            (!inputText.trim() || isTyping) && styles.sendButtonDisabled,
-          ]}
-          onPress={onSend}
-          disabled={!inputText.trim() || isTyping}
-        >
-          {isTyping ? (
-            <ActivityIndicator size="small" color={Colors.ACCENT} />
-          ) : (
-            <Ionicons
-              name="send"
-              size={20}
-              color={inputText.trim() ? Colors.ACCENT : Colors.MUTED}
-            />
-          )}
-        </TouchableOpacity>
+      {/* Enhanced Input Area */}
+      <View style={styles.inputWrapper}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            ref={inputRef}
+            style={styles.input}
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="Ask me anything..."
+            placeholderTextColor={Colors.MUTED}
+            multiline
+            maxLength={500}
+            onSubmitEditing={onSend}
+            editable={!isTyping}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              (!inputText.trim() || isTyping) && styles.sendButtonDisabled,
+            ]}
+            onPress={onSend}
+            disabled={!inputText.trim() || isTyping}
+          >
+            {isTyping ? (
+              <ActivityIndicator size="small" color="#FFF" />
+            ) : (
+              <Ionicons
+                name="send"
+                size={20}
+                color="#FFF"
+              />
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
     </KeyboardAvoidingView>
   );
@@ -301,12 +322,12 @@ function MessageBubble({ message }: { message: Message }) {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 300,
+        duration: 400,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 300,
+        duration: 400,
         useNativeDriver: true,
       }),
     ]).start();
@@ -326,27 +347,29 @@ function MessageBubble({ message }: { message: Message }) {
       {message.isBot && (
         <View style={styles.botAvatar}>
           <Ionicons
-            name="chatbubble-ellipses"
-            size={16}
+            name="sparkles"
+            size={14}
             color={Colors.PRIMARY}
           />
         </View>
       )}
-      <View
-        style={[
-          styles.messageBubble,
-          message.isBot ? styles.botBubble : styles.userBubble,
-          message.isError && styles.errorBubble,
-        ]}
-      >
-        <Text
+      <View style={{ flex: 1, maxWidth: message.isBot ? "85%" : "80%" }}>
+        <View
           style={[
-            styles.messageText,
-            message.isBot ? styles.botText : styles.userText,
+            styles.messageBubble,
+            message.isBot ? styles.botBubble : styles.userBubble,
+            message.isError && styles.errorBubble,
           ]}
         >
-          {message.text}
-        </Text>
+          <Text
+            style={[
+              styles.messageText,
+              message.isBot ? styles.botText : styles.userText,
+            ]}
+          >
+            {message.text}
+          </Text>
+        </View>
         <Text
           style={[
             styles.timestamp,
@@ -361,7 +384,7 @@ function MessageBubble({ message }: { message: Message }) {
       </View>
       {!message.isBot && (
         <View style={styles.userAvatar}>
-          <Ionicons name="person" size={16} color="#FFF" />
+          <Ionicons name="person" size={14} color={Colors.ACCENT} />
         </View>
       )}
     </Animated.View>
@@ -379,7 +402,7 @@ function TypingIndicator() {
         Animated.sequence([
           Animated.delay(delay),
           Animated.timing(dot, {
-            toValue: -8,
+            toValue: -6,
             duration: 400,
             useNativeDriver: true,
           }),
@@ -401,24 +424,26 @@ function TypingIndicator() {
     <View style={styles.messageBubbleContainer}>
       <View style={styles.botAvatar}>
         <Ionicons
-          name="chatbubble-ellipses"
-          size={16}
+          name="sparkles"
+          size={14}
           color={Colors.PRIMARY}
         />
       </View>
-      <View
-        style={[styles.messageBubble, styles.botBubble, styles.typingBubble]}
-      >
-        <View style={styles.typingDots}>
-          <Animated.View
-            style={[styles.dot, { transform: [{ translateY: dot1 }] }]}
-          />
-          <Animated.View
-            style={[styles.dot, { transform: [{ translateY: dot2 }] }]}
-          />
-          <Animated.View
-            style={[styles.dot, { transform: [{ translateY: dot3 }] }]}
-          />
+      <View style={{ flex: 1, maxWidth: "85%" }}>
+        <View
+          style={[styles.messageBubble, styles.botBubble, styles.typingBubble]}
+        >
+          <View style={styles.typingDots}>
+            <Animated.View
+              style={[styles.dot, { transform: [{ translateY: dot1 }] }]}
+            />
+            <Animated.View
+              style={[styles.dot, { transform: [{ translateY: dot2 }] }]}
+            />
+            <Animated.View
+              style={[styles.dot, { transform: [{ translateY: dot3 }] }]}
+            />
+          </View>
         </View>
       </View>
     </View>
@@ -440,7 +465,7 @@ function QuickActionButton({
 
   const handlePressIn = () => {
     Animated.spring(scaleAnim, {
-      toValue: 0.95,
+      toValue: 0.92,
       useNativeDriver: true,
     }).start();
   };
@@ -448,6 +473,8 @@ function QuickActionButton({
   const handlePressOut = () => {
     Animated.spring(scaleAnim, {
       toValue: 1,
+      friction: 3,
+      tension: 40,
       useNativeDriver: true,
     }).start();
   };
@@ -457,20 +484,20 @@ function QuickActionButton({
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      activeOpacity={0.8}
+      activeOpacity={1}
     >
       <Animated.View
         style={[
           styles.quickActionBtn,
           {
-            backgroundColor: `${color}20`,
-            borderColor: `${color}40`,
             transform: [{ scale: scaleAnim }],
           },
         ]}
       >
-        <Ionicons name={icon as any} size={16} color={color} />
-        <Text style={[styles.quickActionText, { color }]}>{text}</Text>
+        <View style={[styles.quickActionIconWrapper, { backgroundColor: `${color}15` }]}>
+          <Ionicons name={icon as any} size={18} color={color} />
+        </View>
+        <Text style={styles.quickActionText}>{text}</Text>
       </Animated.View>
     </TouchableOpacity>
   );
@@ -482,78 +509,125 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.ACCENT,
   },
   header: {
+    backgroundColor: Colors.CARD_BG,
+    paddingTop: 50,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0, 255, 194, 0.08)",
+    shadowColor: Colors.PRIMARY,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  headerContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: Colors.CARD_BG,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 255, 194, 0.1)",
   },
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
   },
+  botIndicatorWrapper: {
+    position: "relative",
+    marginRight: 14,
+  },
   botIndicator: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "rgba(0, 255, 194, 0.15)",
-    marginRight: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(0, 255, 194, 0.12)",
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 2,
+    borderColor: "rgba(0, 255, 194, 0.25)",
   },
-  botIndicatorInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+  statusDot: {
+    position: "absolute",
+    bottom: 2,
+    right: 2,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     backgroundColor: Colors.PRIMARY,
+    borderWidth: 2,
+    borderColor: Colors.CARD_BG,
   },
-  botIndicatorOffline: {
+  statusDotOffline: {
     backgroundColor: "#FFB800",
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     color: Colors.TEXT,
+    letterSpacing: 0.3,
+  },
+  statusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+    gap: 6,
+  },
+  statusIndicator: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.PRIMARY,
+  },
+  statusIndicatorOffline: {
+    backgroundColor: "#FFB800",
   },
   headerSubtitle: {
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.MUTED,
-    marginTop: 2,
+    fontWeight: "500",
   },
-  infoBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "rgba(0, 255, 194, 0.1)",
+  clearBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.08)",
   },
   offlineBanner: {
+    backgroundColor: "rgba(255, 184, 0, 0.08)",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 184, 0, 0.15)",
+  },
+  offlineBannerContent: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
-    backgroundColor: "rgba(255, 184, 0, 0.1)",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 184, 0, 0.2)",
     gap: 8,
+  },
+  offlineBannerIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: "rgba(255, 184, 0, 0.15)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   offlineBannerText: {
     fontSize: 12,
     color: "#FFB800",
-    fontWeight: "500",
+    fontWeight: "600",
+    letterSpacing: 0.2,
   },
   messagesContainer: {
     flex: 1,
     backgroundColor: Colors.ACCENT,
   },
   messagesContent: {
-    padding: 16,
-    paddingBottom: 8,
+    padding: 20,
+    paddingBottom: 12,
   },
   spacer: {
     height: 20,
@@ -561,55 +635,71 @@ const styles = StyleSheet.create({
   messageBubbleContainer: {
     flexDirection: "row",
     alignItems: "flex-end",
-    marginBottom: 12,
-    gap: 8,
+    marginBottom: 16,
+    gap: 10,
   },
   botBubbleContainer: {
     alignSelf: "flex-start",
   },
   userBubbleContainer: {
     alignSelf: "flex-end",
+    flexDirection: "row-reverse",
   },
   botAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.CARD_BG,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(0, 255, 194, 0.12)",
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: "rgba(0, 255, 194, 0.3)",
+    shadowColor: Colors.PRIMARY,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   userAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: Colors.PRIMARY,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: Colors.PRIMARY,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   messageBubble: {
-    maxWidth: "70%",
-    padding: 12,
-    borderRadius: 16,
+    padding: 14,
+    borderRadius: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
   },
   botBubble: {
     backgroundColor: Colors.CARD_BG,
-    borderBottomLeftRadius: 4,
+    borderBottomLeftRadius: 6,
     borderWidth: 1,
-    borderColor: "rgba(0, 255, 194, 0.1)",
+    borderColor: "rgba(0, 255, 194, 0.12)",
   },
   userBubble: {
     backgroundColor: Colors.PRIMARY,
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: 6,
   },
   errorBubble: {
     borderColor: "rgba(255, 184, 0, 0.3)",
-    backgroundColor: "rgba(255, 184, 0, 0.05)",
+    backgroundColor: "rgba(255, 184, 0, 0.06)",
   },
   messageText: {
     fontSize: 15,
-    lineHeight: 20,
+    lineHeight: 22,
+    letterSpacing: 0.2,
   },
   botText: {
     color: Colors.TEXT,
@@ -621,17 +711,21 @@ const styles = StyleSheet.create({
   timestamp: {
     fontSize: 10,
     marginTop: 6,
+    marginLeft: 4,
+    fontWeight: "500",
+    letterSpacing: 0.3,
   },
   botTimestamp: {
     color: Colors.MUTED,
   },
   userTimestamp: {
-    color: "rgba(10, 31, 47, 0.6)",
+    color: Colors.MUTED,
     textAlign: "right",
+    marginRight: 4,
   },
   typingBubble: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
   },
   typingDots: {
     flexDirection: "row",
@@ -643,61 +737,108 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     backgroundColor: Colors.PRIMARY,
+    opacity: 0.7,
   },
-  quickActions: {
-    flexDirection: "row",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  quickActionsWrapper: {
     backgroundColor: Colors.CARD_BG,
-    gap: 8,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0, 255, 194, 0.1)",
+    borderTopColor: "rgba(0, 255, 194, 0.08)",
+    paddingTop: 12,
+    paddingBottom: 8,
   },
-  quickActionBtn: {
-    flex: 1,
+  quickActionsHeader: {
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 20,
+    marginBottom: 12,
+    gap: 12,
+  },
+  quickActionsTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: Colors.MUTED,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  quickActionsDivider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "rgba(0, 255, 194, 0.08)",
+  },
+  quickActionsContainer: {
+    paddingHorizontal: 20,
+    gap: 10,
+  },
+  quickActionBtn: {
+    flexDirection: "column",
+    alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderRadius: 16,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
     borderWidth: 1,
-    gap: 6,
+    borderColor: "rgba(0, 255, 194, 0.12)",
+    minWidth: 110,
+    gap: 8,
+  },
+  quickActionIconWrapper: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    justifyContent: "center",
+    alignItems: "center",
   },
   quickActionText: {
     fontSize: 12,
     fontWeight: "600",
+    color: Colors.TEXT,
+    textAlign: "center",
+    letterSpacing: 0.2,
+  },
+  inputWrapper: {
+    backgroundColor: Colors.CARD_BG,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0, 255, 194, 0.08)",
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 24,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "flex-end",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: Colors.CARD_BG,
-    gap: 8,
+    gap: 10,
   },
   input: {
     flex: 1,
-    minHeight: 44,
-    maxHeight: 100,
-    backgroundColor: Colors.ACCENT,
-    borderRadius: 22,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    minHeight: 48,
+    maxHeight: 110,
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    paddingBottom: 14,
     color: Colors.TEXT,
     fontSize: 15,
-    borderWidth: 1,
-    borderColor: "rgba(0, 255, 194, 0.2)",
+    borderWidth: 1.5,
+    borderColor: "rgba(0, 255, 194, 0.15)",
+    lineHeight: 20,
   },
   sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: Colors.PRIMARY,
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: Colors.PRIMARY,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
   },
   sendButtonDisabled: {
-    backgroundColor: "rgba(0, 255, 194, 0.3)",
+    backgroundColor: "rgba(0, 255, 194, 0.25)",
+    shadowOpacity: 0.1,
   },
 });

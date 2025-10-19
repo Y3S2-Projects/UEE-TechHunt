@@ -4,7 +4,7 @@ import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 // ⚠️ IMPORTANT: Replace with your computer's local IP address.
-const API_URL = "http://localhost:6000/api/courses";
+const API_URL = "http://192.168.8.141:6000/api/courses";
 
 // Define the Course type to match the backend schema
 type Course = {

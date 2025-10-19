@@ -16,7 +16,7 @@ import * as Progress from "react-native-progress";
 import * as FileSystem from "expo-file-system";
 
 // IMPORTANT: Replace with your computer's IP address
-const API_BASE_URL = "http://192.168.8.141:5000";
+const API_BASE_URL = "http://192.168.8.141:6000";
 
 // --- Dark Theme Colors ---
 const COLORS = {
@@ -189,7 +189,7 @@ export default function FreelancerDashboard() {
           {
             fieldName: "cv",
             httpMethod: "POST",
-            uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+            // uploadType: "multipart",
           }
         );
 

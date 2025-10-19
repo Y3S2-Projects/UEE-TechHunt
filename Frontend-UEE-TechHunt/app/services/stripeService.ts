@@ -1,7 +1,7 @@
 // services/stripeService.ts
 import Constants from 'expo-constants';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.8.141:5000';
 
 interface PaymentIntentResponse {
   paymentIntent: string;
